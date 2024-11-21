@@ -6,7 +6,7 @@ import './node_modules/maplibre-gl/dist/maplibre-gl.css';
 //import LayerControl from './LayerControl';
 //import MapInfoControl from './MapInfo';
 //import MinimapControl from './MinimapControls';
-//import TerrainControls from './TerrainControls';
+import TerrainControls from './TerrainControls';
 
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
