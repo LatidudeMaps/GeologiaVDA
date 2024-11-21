@@ -3,14 +3,21 @@
   "version": "1.0.0",
   "description": "3D Geological Map of Val d'Agri (Basilicata, Italy) - CC BY-NC-ND 4.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "maplibre-gl": "^4.7.1",
+    "pmtiles": "^3.2.1",
     "vite": "^5.4.11"
+  },
+  "dependencies": {
+    "@geomatico/maplibre-cog-protocol": "^0.3.1"
   }
 }
