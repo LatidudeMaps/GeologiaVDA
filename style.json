@@ -13,19 +13,19 @@
         },
         "terrainSource": {
             "type": "raster-dem",
-            "url": "cog://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/South_Italy_COG_2.tif#dem",
+            "url": "cog://https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/DEM_VDA_5m_COG.tif#dem",
             "tileSize": 256,
             "maxzoom": 15
         },
         "hillshadeSource": {
             "type": "raster",
-            "url": "cog://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/HS_COG.tif",
+            "url": "cog://https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/HS_VDA_5m_COG.tif",
             "tileSize": 256,
             "maxzoom": 15
         },
         "geoSource": {
             "type": "raster",
-            "url": "cog://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/geoVDA_COG.tif",
+            "url": "cog://https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/geoVDA_COG.tif",
             "tileSize": 256,
             "maxzoom": 15
         },
@@ -33,17 +33,9 @@
             "type": "vector",
             "url": "pmtiles://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/geoVDA.pmtiles"
         },
-        "rivers": {
-            "type": "vector",
-            "url": "pmtiles://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/fiumi.pmtiles"
-        },
         "cities": {
             "type": "vector",
             "url": "pmtiles://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/cities.pmtiles"
-        },
-        "MountainAreas": {
-            "type": "geojson",
-            "data": "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/MountainAreas.geojson"
         }
     },
     "layers": [
@@ -57,7 +49,7 @@
             "type": "raster",
             "source": "hillshadeSource",
             "paint": {
-                "raster-opacity": 0.3,
+                "raster-opacity": 1,
                 "raster-resampling": "linear"
             }
         },
@@ -66,7 +58,7 @@
             "type": "raster",
             "source": "geoSource",
             "paint": {
-                "raster-opacity": 1,
+                "raster-opacity": 0,
                 "raster-resampling": "linear"
             }
         },
@@ -113,37 +105,6 @@
                     ["zoom"],
                     8, 0,
                     10, 1
-                ]
-            }
-        },
-        {
-            "id": "mountainAreas",
-            "type": "fill",
-            "source": "MountainAreas",
-            "paint": {
-                "fill-color": "rgba(0, 136, 136, 0.2)",
-                "fill-outline-color": "#ffffff"
-            }
-        },
-        {
-            "id": "rivers",
-            "type": "line",
-            "source": "rivers",
-            "source-layer": "fiumi",
-            "layout": {
-                "visibility": "visible",
-                "line-join": "round",
-                "line-cap": "round"
-            },
-            "paint": {
-                "line-color": "#FFFFFF",
-                "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                    8, 0.5,
-                    12, 1,
-                    16, 2
                 ]
             }
         },
