@@ -3,7 +3,7 @@ import * as maplibregl from "maplibre-gl";
 import style from './style.json';
 import {cogProtocol} from '@geomatico/maplibre-cog-protocol';
 import './node_modules/maplibre-gl/dist/maplibre-gl.css';
-//import LayerControl from './LayerControl';
+import LayerControl from './LayerControl';
 //import MapInfoControl from './MapInfo';
 //import MinimapControl from './MinimapControls';
 import TerrainControls from './TerrainControls';
