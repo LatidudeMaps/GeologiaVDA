@@ -4,7 +4,7 @@ import style from './style.json';
 import {cogProtocol} from '@geomatico/maplibre-cog-protocol';
 import './node_modules/maplibre-gl/dist/maplibre-gl.css';
 import LayerControl from './LayerControl';
-//import MapInfoControl from './MapInfo';
+import MapInfoControl from './MapInfo';
 //import MinimapControl from './MinimapControls';
 import TerrainControls from './TerrainControls';
 
@@ -41,6 +41,10 @@ const map = new maplibregl.Map({
     center: [16, 40],
     zoom: 12,
     maxPitch: 85,
+    maxBounds: [
+        [15.5325, 40.2507],
+        [16.2076, 40.5094]
+    ]
 });
 
 // Add standard controls
@@ -71,57 +75,57 @@ map.addControl(new maplibregl.TerrainControl({
 map.addControl(new TerrainControls(), 'top-right');
 
 // Minimap Custom Controls
-map.addControl(new MinimapControl({
-    // width: 250,  // Custom width in pixels
-    // height: 250, // Custom height in pixels
-    zoomOffset: 5 // How many zoom levels to subtract from main map
-}), 'bottom-right');
+// map.addControl(new MinimapControl({
+//     // width: 250,  // Custom width in pixels
+//     // height: 250, // Custom height in pixels
+//     zoomOffset: 5 // How many zoom levels to subtract from main map
+// }), 'bottom-right');
 
 // Map Info Controls
 map.addControl(new MapInfoControl(), 'bottom-left');
 
 // Add this code in main.js after map initialization
 
-// map.on('load', () => {
-//     // Add a hover layer
-//     map.addLayer({
-//         'id': 'geologiaVDA-hover',
-//         'type': 'fill',
-//         'source': 'geoVectorSource',
-//         'source-layer': 'geoVDA',
-//         'paint': {
-//             'fill-color': '#ff0000',
-//             'fill-opacity': 0.7
-//         },
-//         'filter': ['==', ['get', 'id'], -1]  // Start with no features selected
-//     });
+map.on('load', () => {
+    // Add a hover layer
+    map.addLayer({
+        'id': 'geologiaVDA-hover',
+        'type': 'fill',
+        'source': 'geoVectorSource',
+        'source-layer': 'geoVDA',
+        'paint': {
+            'fill-color': '#ff0000',
+            'fill-opacity': 0.4
+        },
+        'filter': ['==', ['get', 'id'], -1]  // Start with no features selected
+    });
 
-//     map.on('mousemove', 'geologiaVDA', (e) => {
-//         if (e.features.length > 0) {
-//             // Use the 'id' from properties
-//             const hoveredId = e.features[0].properties.id;
-//             map.setFilter('geologiaVDA-hover', ['==', ['get', 'id'], hoveredId]);
-//         }
-//         map.getCanvas().style.cursor = 'pointer';
-//     });
+    map.on('mousemove', 'geologiaVDA', (e) => {
+        if (e.features.length > 0) {
+            // Use the 'id' from properties
+            const hoveredId = e.features[0].properties.id;
+            map.setFilter('geologiaVDA-hover', ['==', ['get', 'id'], hoveredId]);
+        }
+        map.getCanvas().style.cursor = 'pointer';
+    });
 
-//     map.on('mouseleave', 'geologiaVDA', () => {
-//         map.setFilter('geologiaVDA-hover', ['==', ['get', 'id'], -1]);
-//         map.getCanvas().style.cursor = '';
-//     });
+    map.on('mouseleave', 'geologiaVDA', () => {
+        map.setFilter('geologiaVDA-hover', ['==', ['get', 'id'], -1]);
+        map.getCanvas().style.cursor = '';
+    });
 
-//     // Click handler for popup
-//     map.on('click', 'geologiaVDA', (e) => {
-//         if (e.features.length > 0) {
-//             const coordinates = e.lngLat;
-//             const properties = e.features[0].properties;
+    // Click handler for popup
+    map.on('click', 'geologiaVDA', (e) => {
+        if (e.features.length > 0) {
+            const coordinates = e.lngLat;
+            const properties = e.features[0].properties;
 
-//             new maplibregl.Popup()
-//                 .setLngLat(coordinates)
-//                 .setHTML(Object.entries(properties)
-//                     .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
-//                     .join('<br>'))
-//                 .addTo(map);
-//         }
-//     });
-// });
+            new maplibregl.Popup()
+                .setLngLat(coordinates)
+                .setHTML(Object.entries(properties)
+                    .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
+                    .join('<br>'))
+                .addTo(map);
+        }
+    });
+});

@@ -31,7 +31,7 @@
         },
         "geoVectorSource": {
             "type": "vector",
-            "url": "pmtiles://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/geoVDA.pmtiles"
+            "url": "pmtiles://https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/geoVDA.pmtiles"
         },
         "cities": {
             "type": "vector",
@@ -45,20 +45,20 @@
             "source": "basemap"
         },
         {
-            "id": "hillshade",
-            "type": "raster",
-            "source": "hillshadeSource",
-            "paint": {
-                "raster-opacity": 1,
-                "raster-resampling": "linear"
-            }
-        },
-        {
             "id": "geologia",
             "type": "raster",
             "source": "geoSource",
             "paint": {
-                "raster-opacity": 0.5,
+                "raster-opacity": 0.7,
+                "raster-resampling": "linear"
+            }
+        },
+        {
+            "id": "hillshade",
+            "type": "raster",
+            "source": "hillshadeSource",
+            "paint": {
+                "raster-opacity": 0.3,
                 "raster-resampling": "linear"
             }
         },
@@ -68,7 +68,7 @@
             "source": "geoVectorSource",
             "source-layer": "geoVDA",
             "paint": {
-                "fill-color": "rgba(0, 136, 136, 0.2)",
+                "fill-color": "rgba(0, 136, 136, 0)",
                 "fill-outline-color": "#ffffff"
             }
         },
