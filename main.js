@@ -5,8 +5,10 @@ import {cogProtocol} from '@geomatico/maplibre-cog-protocol';
 import './node_modules/maplibre-gl/dist/maplibre-gl.css';
 import LayerControl from './LayerControl';
 import MapInfoControl from './MapInfo';
-//import MinimapControl from './MinimapControls';
+import MinimapControl from './MinimapControls';
 import TerrainControls from './TerrainControls';
+import GeoInfoPanel from './GeoInfoPanel';
+import Sidebar from './Sidebar';
 
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
@@ -47,6 +49,25 @@ const map = new maplibregl.Map({
     ]
 });
 
+// Sidebar
+const sidebar = new Sidebar();
+
+// Layer Control panel
+const layerControl = new LayerControl();
+
+// Pannello Info geologiche
+const geoInfoPanel = new GeoInfoPanel();
+
+// Quando la mappa è pronta, aggiungi tutto
+map.on('load', () => {
+    // Prima aggiungi la sidebar
+    sidebar.add(map);
+    
+    // Poi aggiungi i pannelli alla sidebar
+    sidebar.addPanel(layerControl.onAdd(map), 'top');
+    sidebar.addPanel(geoInfoPanel.onAdd(map), 'bottom');
+});
+
 // Add standard controls
 map.addControl(new maplibregl.NavigationControl({
     visualizePitch: true  // This adds a pitch control to the navigation control
@@ -62,9 +83,6 @@ map.addControl(new maplibregl.GeolocateControl({
 map.addControl(new maplibregl.ScaleControl({ unit: "metric" }));
 map.addControl(new maplibregl.FullscreenControl());
 
-// Layer Control panel
-map.addControl(new LayerControl(), 'top-left');
-
 // Standard 3D Terrain Controls
 map.addControl(new maplibregl.TerrainControl({
     source: 'terrainSource',
@@ -75,11 +93,11 @@ map.addControl(new maplibregl.TerrainControl({
 map.addControl(new TerrainControls(), 'top-right');
 
 // Minimap Custom Controls
-// map.addControl(new MinimapControl({
-//     // width: 250,  // Custom width in pixels
-//     // height: 250, // Custom height in pixels
-//     zoomOffset: 5 // How many zoom levels to subtract from main map
-// }), 'bottom-right');
+map.addControl(new MinimapControl({
+    // width: 250,  // Custom width in pixels
+    // height: 250, // Custom height in pixels
+    zoomOffset: 5 // How many zoom levels to subtract from main map
+}), 'bottom-right');
 
 // Map Info Controls
 map.addControl(new MapInfoControl(), 'bottom-left');
@@ -102,7 +120,6 @@ map.on('load', () => {
 
     map.on('mousemove', 'geologiaVDA', (e) => {
         if (e.features.length > 0) {
-            // Use the 'id' from properties
             const hoveredId = e.features[0].properties.id;
             map.setFilter('geologiaVDA-hover', ['==', ['get', 'id'], hoveredId]);
         }
@@ -112,20 +129,5 @@ map.on('load', () => {
     map.on('mouseleave', 'geologiaVDA', () => {
         map.setFilter('geologiaVDA-hover', ['==', ['get', 'id'], -1]);
         map.getCanvas().style.cursor = '';
-    });
-
-    // Click handler for popup
-    map.on('click', 'geologiaVDA', (e) => {
-        if (e.features.length > 0) {
-            const coordinates = e.lngLat;
-            const properties = e.features[0].properties;
-
-            new maplibregl.Popup()
-                .setLngLat(coordinates)
-                .setHTML(Object.entries(properties)
-                    .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
-                    .join('<br>'))
-                .addTo(map);
-        }
     });
 });
