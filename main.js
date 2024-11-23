@@ -8,26 +8,14 @@ import MapInfoControl from './MapInfo';
 import MinimapControl from './MinimapControls';
 import TerrainControls from './TerrainControls';
 import GeoInfoPanel from './GeoInfoPanel';
-import Sidebar from './Sidebar';
+import SettingsControl from './SettingsControl';
 
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
 maplibregl.addProtocol('cog', cogProtocol)
 
-// const PMTILES_URL = 'https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/DEM_90_Basilicata2.pmtiles';
-// const PMTILES_URL_HS = 'https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/HS_90_Basilicata2.pmtiles';
 const PMTILES_URL_FIUMI = 'https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/fiumi.pmtiles';
-
 const PMTILES_CITIES_URL = 'https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/cities.pmtiles';
-
-// COG URL
-const COG_URL = 'https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/South_Italy_COG.tif#dem';
-const HILLSHADE_COG_URL = 'https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/HS_COG.tif';
-
-// const p = new pmtiles.PMTiles(PMTILES_URL);
-// protocol.add(p);
-// const p2 = new pmtiles.PMTiles(PMTILES_URL_HS);
-// protocol.add(p2);
 
 const fiumi_p = new pmtiles.PMTiles(PMTILES_URL_FIUMI);
 protocol.add(fiumi_p);
@@ -49,60 +37,48 @@ const map = new maplibregl.Map({
     ]
 });
 
-// Sidebar
-const sidebar = new Sidebar();
-
-// Layer Control panel
-const layerControl = new LayerControl();
-
-// Pannello Info geologiche
-const geoInfoPanel = new GeoInfoPanel();
-
-// Quando la mappa è pronta, aggiungi tutto
-map.on('load', () => {
-    // Prima aggiungi la sidebar
-    sidebar.add(map);
-    
-    // Poi aggiungi i pannelli alla sidebar
-    sidebar.addPanel(layerControl.onAdd(map), 'top');
-    sidebar.addPanel(geoInfoPanel.onAdd(map), 'bottom');
-});
-
 // Add standard controls
 map.addControl(new maplibregl.NavigationControl({
-    visualizePitch: true  // This adds a pitch control to the navigation control
+    visualizePitch: true
 }));
-  
-map.addControl(new maplibregl.GeolocateControl({
-    positionOptions: {
-        enableHighAccuracy: true
-    },
-    trackUserLocation: true
-}));
-
-map.addControl(new maplibregl.ScaleControl({ unit: "metric" }));
-map.addControl(new maplibregl.FullscreenControl());
-
-// Standard 3D Terrain Controls
-map.addControl(new maplibregl.TerrainControl({
-    source: 'terrainSource',
-    exaggeration: 1.5})
-);
 
 // Modified controls for terrain and hillshade opacity
 map.addControl(new TerrainControls(), 'top-right');
 
+// Add settings wrapper control (contains LayerControl, GeoInfoPanel, MapInfoControl, TerrainControls)
+map.addControl(new SettingsControl(), 'top-right');
+
+// // Layer Control panel subito dopo i controlli di navigazione
+// map.addControl(new LayerControl(), 'top-right');
+
+// // Geo Info Panel
+// map.addControl(new GeoInfoPanel(), 'top-right');
+
+// // Map Info Controls
+// map.addControl(new MapInfoControl(), 'top-right');
+
+// // Altri controlli in posizioni diverse
+// map.addControl(new maplibregl.GeolocateControl({
+//     positionOptions: {
+//         enableHighAccuracy: true
+//     },
+//     trackUserLocation: true
+// }), 'top-right');
+
+// map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+
+// // Standard 3D Terrain Controls
+// map.addControl(new maplibregl.TerrainControl({
+//     source: 'terrainSource',
+//     exaggeration: 1.5})
+// );
+
+map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), 'bottom-right');
+
 // Minimap Custom Controls
 map.addControl(new MinimapControl({
-    // width: 250,  // Custom width in pixels
-    // height: 250, // Custom height in pixels
-    zoomOffset: 5 // How many zoom levels to subtract from main map
-}), 'bottom-right');
-
-// Map Info Controls
-map.addControl(new MapInfoControl(), 'bottom-left');
-
-// Add this code in main.js after map initialization
+    zoomOffset: 5
+}), 'top-left');
 
 map.on('load', () => {
     // Add a hover layer

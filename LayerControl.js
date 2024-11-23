@@ -2,13 +2,22 @@ class LayerControl {
     constructor() {
         this._map = null;
         this._container = null;
-        this._layerStates = new Map(); // Store layer states
+        this._layerStates = new Map();
     }
 
     onAdd(map) {
         this._map = map;
         this._container = document.createElement('div');
         this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+
+        // Create toggle button using MapLibre's native style
+        this._button = document.createElement('button');
+        this._button.type = 'button';
+        this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-layers';
+        this._button.setAttribute('aria-label', 'Toggle Layers');
+
+        // Add CSS for the layers icon
+        this._addLayersStyles();
         
         // Create the control panel container
         const panel = document.createElement('div');
@@ -17,6 +26,10 @@ class LayerControl {
         panel.style.borderRadius = '4px';
         panel.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
         panel.style.minWidth = '200px';
+        panel.style.position = 'absolute';
+        panel.style.right = '40px';
+        panel.style.top = '0';
+        panel.style.display = 'none';  // Initially hidden
 
         // Add title
         const title = document.createElement('div');
@@ -34,8 +47,49 @@ class LayerControl {
             map.on('load', () => this._addLayerControls(panel));
         }
 
+        // Add click handler for toggle button
+        this._button.addEventListener('click', () => {
+            this._togglePanel();
+        });
+
+        // Add click handler to close panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!this._container.contains(e.target) && panel.style.display === 'block') {
+                panel.style.display = 'none';
+                this._button.style.backgroundColor = '';
+            }
+        });
+
+        this._container.appendChild(this._button);
         this._container.appendChild(panel);
         return this._container;
+    }
+
+    _addLayersStyles() {
+        if (!document.getElementById('maplibregl-ctrl-layers-style')) {
+            const style = document.createElement('style');
+            style.id = 'maplibregl-ctrl-layers-style';
+            style.textContent = `
+                .maplibregl-ctrl-layers {
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpolygon points="12 2 2 7 12 12 22 7 12 2"/%3E%3Cpolyline points="2 17 12 22 22 17"/%3E%3Cpolyline points="2 12 12 17 22 12"/%3E%3C/svg%3E');
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    background-size: 20px;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    _togglePanel() {
+        const panel = this._container.querySelector('div:nth-child(2)');
+        if (panel.style.display === 'none') {
+            panel.style.display = 'block';
+            this._button.style.backgroundColor = '#e5e5e5';
+        } else {
+            panel.style.display = 'none';
+            this._button.style.backgroundColor = '';
+        }
     }
 
     _addLayerControls(panel) {
