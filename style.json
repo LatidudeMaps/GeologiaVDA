@@ -90,9 +90,9 @@
                     "interpolate",
                     ["linear"],
                     ["zoom"],
-                    10, 8,
-                    12, 10,
-                    14, 12
+                    10, 7,
+                    12, 8,
+                    14, 9
                 ],
                 "text-allow-overlap": false,
                 "text-ignore-placement": false,

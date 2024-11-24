@@ -3,12 +3,13 @@ import * as maplibregl from "maplibre-gl";
 import style from './style.json';
 import {cogProtocol} from '@geomatico/maplibre-cog-protocol';
 import './node_modules/maplibre-gl/dist/maplibre-gl.css';
-import LayerControl from './LayerControl';
-import MapInfoControl from './MapInfo';
+// import LayerControl from './LayerControl';
+// import MapInfoControl from './MapInfo';
+// import GeoInfoPanel from './GeoInfoPanel';
 import MinimapControl from './MinimapControls';
 import TerrainControls from './TerrainControls';
-import GeoInfoPanel from './GeoInfoPanel';
 import SettingsControl from './SettingsControl';
+import CopyrightControl from './CopyrightControl';
 
 const protocol = new pmtiles.Protocol();
 maplibregl.addProtocol('pmtiles', protocol.tile);
@@ -79,6 +80,9 @@ map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), 'bottom-right');
 map.addControl(new MinimapControl({
     zoomOffset: 5
 }), 'top-left');
+
+// Add copyright control
+map.addControl(new CopyrightControl(), 'bottom-left');
 
 map.on('load', () => {
     // Add a hover layer
