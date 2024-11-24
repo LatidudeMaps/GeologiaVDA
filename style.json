@@ -1,6 +1,7 @@
 {
     "version": 8,
     "glyphs": "https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/fonts/{fontstack}/{range}.pbf",
+    "sprite": "https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/sprites/sprite",
     "sources": {
         "basemap": {
             "type": "raster",
