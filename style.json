@@ -167,6 +167,7 @@
             "minzoom": 10,
             "layout": {
                 "icon-image": "peak-line",
+                "icon-size": 0.5,
                 "icon-anchor": "bottom",
                 "icon-allow-overlap": true,
                 "icon-ignore-placement": true
@@ -181,7 +182,7 @@
             "source": "peaks",
             "minzoom": 10,
             "paint": {
-                "circle-radius": 3,
+                "circle-radius": 1.5,
                 "circle-color": "#ffffff"
             }
         },
@@ -207,10 +208,10 @@
                     12, 11,
                     14, 12
                 ],
-                "text-line-height": 1.2,
+                "text-line-height": 1,
                 "text-allow-overlap": false,
                 "text-ignore-placement": false,
-                "text-offset": [0, -2.5],
+                "text-offset": [0, -1.5],
                 "text-anchor": "bottom",
                 "text-max-angle": 45
             },
