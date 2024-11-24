@@ -10,6 +10,7 @@ class SettingsControl {
         this._isExpanded = false;
         this._controls = [];
         this._controlsContainer = null;
+        this._activeButtons = new Set(); // Track active buttons
     }
 
     onAdd(map) {
@@ -53,7 +54,6 @@ class SettingsControl {
         
         // Add click handler to close when clicking outside
         document.addEventListener('click', (e) => {
-            // Chiudi solo se il click non è sul container o sui suoi figli e non è sulla mappa
             if (!this._container.contains(e.target) && 
                 !e.target.closest('.maplibregl-canvas-container') && 
                 this._isExpanded) {
@@ -64,7 +64,6 @@ class SettingsControl {
         this._container.appendChild(this._button);
         this._container.appendChild(this._controlsContainer);
         
-        // Add the controls we want to wrap
         this._addWrappedControls(map);
         
         return this._container;
@@ -100,14 +99,36 @@ class SettingsControl {
                     background-color: #fff !important;
                     border: 0;
                     border-radius: 4px;
+                    transition: all 0.3s ease;
                 }
 
                 .settings-controls-container button:hover {
                     background-color: #f0f0f0 !important;
                 }
 
-                .settings-controls-container .maplibregl-ctrl-group {
-                    background: #fff !important;
+                .settings-controls-container button.active {
+                    background-color: rgba(51, 181, 229, 0.1) !important;
+                }
+
+                /* Specific active states for each control type */
+                .settings-controls-container .maplibregl-ctrl-layers.active {
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpolygon points="12 2 2 7 12 12 22 7 12 2"/%3E%3Cpolyline points="2 17 12 22 22 17"/%3E%3Cpolyline points="2 12 12 17 22 12"/%3E%3C/svg%3E') !important;
+                }
+
+                .settings-controls-container .maplibregl-ctrl-inspect.active {
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Ccircle cx="11" cy="11" r="8"/%3E%3Cline x1="21" y1="21" x2="16.65" y2="16.65"/%3E%3C/svg%3E') !important;
+                }
+
+                .settings-controls-container .maplibregl-ctrl-zoom-info.active {
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Ccircle cx="12" cy="12" r="10"/%3E%3Cline x1="2" y1="12" x2="22" y2="12"/%3E%3Cline x1="12" y1="2" x2="12" y2="22"/%3E%3C/svg%3E') !important;
+                }
+
+                .settings-controls-container .maplibregl-ctrl-fullscreen.active {
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/%3E%3C/svg%3E') !important;
+                }
+
+                .maplibregl-ctrl-group {
+                    background: #fff
                     border-radius: 4px;
                     box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
                 }
@@ -119,30 +140,49 @@ class SettingsControl {
     _addWrappedControls(map) {
         // Add the controls we want to wrap
         const controls = [
-            new LayerControl(),
-            new GeoInfoPanel(),
-            new MapInfoControl(),
-            //new TerrainControls(),
-            new maplibregl.GeolocateControl({
-                positionOptions: {
-                    enableHighAccuracy: true
-                },
+            { instance: new LayerControl(), className: 'maplibregl-ctrl-layers' },
+            { instance: new GeoInfoPanel(), className: 'maplibregl-ctrl-inspect' },
+            { instance: new MapInfoControl(), className: 'maplibregl-ctrl-zoom-info' },
+            { instance: new maplibregl.GeolocateControl({
+                positionOptions: { enableHighAccuracy: true },
                 trackUserLocation: true
-            }),
-            new maplibregl.FullscreenControl(),
-            new maplibregl.TerrainControl({
+            }), className: 'maplibregl-ctrl-geolocate' },
+            { instance: new maplibregl.FullscreenControl(), className: 'maplibregl-ctrl-fullscreen' },
+            { instance: new maplibregl.TerrainControl({
                 source: 'terrainSource',
                 exaggeration: 1.5
-            })
+            }), className: 'maplibregl-ctrl-terrain' }
         ];
 
         controls.forEach(control => {
-            const controlContainer = control.onAdd(map);
+            const controlContainer = control.instance.onAdd(map);
             controlContainer.style.position = 'relative';
             controlContainer.style.marginBottom = '5px';
+
+            // Find the button within the control container
+            const button = controlContainer.querySelector('button');
+            if (button) {
+                // Add click handler for tracking active state
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this._toggleButtonState(button, control.className);
+                });
+            }
+
             this._controlsContainer.appendChild(controlContainer);
-            this._controls.push(control);
+            this._controls.push(control.instance);
         });
+    }
+
+    _toggleButtonState(button, className) {
+        // Toggle active state
+        if (button.classList.contains('active')) {
+            button.classList.remove('active');
+            this._activeButtons.delete(className);
+        } else {
+            button.classList.add('active');
+            this._activeButtons.add(className);
+        }
     }
 
     _toggleControls() {
