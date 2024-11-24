@@ -42,7 +42,7 @@ class CopyrightControl {
 
         // Add main text
         const mainText = document.createElement('div');
-        mainText.textContent = '3D GeoTour';
+        mainText.textContent = 'Val d Agri 3D Geological Tour';
         mainText.style.fontWeight = '500';
         mainText.style.color = '#1a1a1a';
         textContainer.appendChild(mainText);
@@ -116,31 +116,38 @@ class CopyrightControl {
     async _loadLogo() {
         try {
             // Carica l'SVG da URL
-            const response = await fetch('https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/logo_color.svg');
+            const response = await fetch('https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/logo_dark.svg');
             const svgText = await response.text();
             
-            // Crea un elemento SVG
-            const container = document.createElement('div');
-            container.innerHTML = svgText.trim();
+            // Crea un parser per l'SVG
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgElement = doc.querySelector('svg');
             
-            const svgElement = container.firstChild;
-            
-            // Imposta dimensioni e stile
-            svgElement.setAttribute('width', '24');
-            svgElement.setAttribute('height', '24');
-            svgElement.style.minWidth = '24px';
-            svgElement.style.transition = 'transform 0.3s ease';
-            
-            // Aggiungi hover effect
-            container.addEventListener('mouseenter', () => {
-                svgElement.style.transform = 'scale(1.1)';
-            });
-            
-            container.addEventListener('mouseleave', () => {
-                svgElement.style.transform = 'scale(1)';
-            });
-            
-            return container.firstChild;
+            if (svgElement) {
+                // Imposta dimensioni e stile
+                svgElement.setAttribute('width', '24');
+                svgElement.setAttribute('height', '24');
+                svgElement.style.minWidth = '24px';
+                svgElement.style.transition = 'transform 0.3s ease';
+                
+                // Crea un container per l'hover effect
+                const container = document.createElement('div');
+                container.appendChild(svgElement);
+                
+                // Aggiungi hover effect
+                container.addEventListener('mouseenter', () => {
+                    svgElement.style.transform = 'scale(1.1)';
+                });
+                
+                container.addEventListener('mouseleave', () => {
+                    svgElement.style.transform = 'scale(1)';
+                });
+                
+                return svgElement;
+            } else {
+                throw new Error('SVG element not found in response');
+            }
         } catch (error) {
             console.error('Error loading logo:', error);
             // Fallback to text if logo fails to load
