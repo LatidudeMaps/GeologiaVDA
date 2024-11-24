@@ -173,7 +173,7 @@
                 "icon-ignore-placement": true
             },
             "paint": {
-                "icon-opacity": 0.8
+                "icon-opacity": 1
             }
         },
         {
@@ -204,22 +204,19 @@
                     "interpolate",
                     ["linear"],
                     ["zoom"],
-                    10, 10,
-                    12, 11,
-                    14, 12
+                    10, 8,
+                    12, 9,
+                    14, 10
                 ],
                 "text-line-height": 1,
                 "text-allow-overlap": false,
                 "text-ignore-placement": false,
-                "text-offset": [0, -1.5],
+                "text-offset": [0, -1.7],
                 "text-anchor": "bottom",
                 "text-max-angle": 45
             },
             "paint": {
                 "text-color": "#ffffff",
-                "text-halo-color": "rgba(0, 0, 0, 0.9)",
-                "text-halo-width": 1.5,
-                "text-halo-blur": 0.5,
                 "text-opacity": [
                     "interpolate",
                     ["linear"],
