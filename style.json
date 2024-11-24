@@ -162,11 +162,17 @@
         },
         {
             "id": "peaks-callout-lines",
-            "type": "background",
+            "type": "symbol",
             "source": "peaks",
             "minzoom": 10,
+            "layout": {
+                "icon-image": "peak-line",
+                "icon-anchor": "bottom",
+                "icon-allow-overlap": true,
+                "icon-ignore-placement": true
+            },
             "paint": {
-                "background-pattern": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bGluZSB4MT0iMTUiIHkxPSIwIiB4Mj0iMTUiIHkyPSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4="
+                "icon-opacity": 0.8
             }
         },
         {
@@ -176,9 +182,7 @@
             "minzoom": 10,
             "paint": {
                 "circle-radius": 3,
-                "circle-color": "#ffffff",
-                "circle-stroke-color": "#000000",
-                "circle-stroke-width": 1.5
+                "circle-color": "#ffffff"
             }
         },
         {
