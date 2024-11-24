@@ -1,6 +1,6 @@
 {
     "version": 8,
-    "glyphs": "https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/fonts/{fontstack}/{range}.pbf",
+    "glyphs": "https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/fonts/{fontstack}/{range}.pbf",
     "sources": {
         "basemap": {
             "type": "raster",
@@ -36,6 +36,10 @@
         "cities": {
             "type": "vector",
             "url": "pmtiles://https://raw.githubusercontent.com/latidudemaps/MountainAtlas/main/data/cities.pmtiles"
+        },
+        "peaks": {
+            "type": "geojson",
+            "data": "https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/peaks.geojson"
         }
     },
     "layers": [
@@ -151,6 +155,70 @@
                     ["linear"],
                     ["zoom"],
                     8, 0,
+                    10, 1
+                ]
+            }
+        },
+        {
+            "id": "peaks-callout-lines",
+            "type": "background",
+            "source": "peaks",
+            "minzoom": 10,
+            "paint": {
+                "background-pattern": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCAzMCAzMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bGluZSB4MT0iMTUiIHkxPSIwIiB4Mj0iMTUiIHkyPSIzMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4="
+            }
+        },
+        {
+            "id": "peaks-points",
+            "type": "circle",
+            "source": "peaks",
+            "minzoom": 10,
+            "paint": {
+                "circle-radius": 3,
+                "circle-color": "#ffffff",
+                "circle-stroke-color": "#000000",
+                "circle-stroke-width": 1.5
+            }
+        },
+        {
+            "id": "peaks-labels",
+            "type": "symbol",
+            "source": "peaks",
+            "minzoom": 10,
+            "layout": {
+                "text-field": [
+                    "concat",
+                    ["get", "name"],
+                    "\n",
+                    ["number-format", ["get", "elevation"], {"locale": "it-IT"}],
+                    "m"
+                ],
+                "text-font": ["Montserrat Regular"],
+                "text-size": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    10, 10,
+                    12, 11,
+                    14, 12
+                ],
+                "text-line-height": 1.2,
+                "text-allow-overlap": false,
+                "text-ignore-placement": false,
+                "text-offset": [0, -2.5],
+                "text-anchor": "bottom",
+                "text-max-angle": 45
+            },
+            "paint": {
+                "text-color": "#ffffff",
+                "text-halo-color": "rgba(0, 0, 0, 0.9)",
+                "text-halo-width": 1.5,
+                "text-halo-blur": 0.5,
+                "text-opacity": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    9, 0,
                     10, 1
                 ]
             }
