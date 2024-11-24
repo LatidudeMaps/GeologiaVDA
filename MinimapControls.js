@@ -9,33 +9,112 @@ class MinimapControl {
         this._width = options.width || 200;
         this._height = options.height || 200;
         this._zoomOffset = options.zoomOffset || 4;
+        this._isVisible = true;
     }
 
     onAdd(map) {
         this._mainMap = map;
         this._container = document.createElement('div');
-        this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+        this._container.className = 'maplibregl-ctrl';
+        this._container.style.backgroundColor = 'transparent';
+        this._container.style.position = 'relative';
         
-        const minimapContainer = document.createElement('div');
-        minimapContainer.style.width = this._width + 'px';
-        minimapContainer.style.height = this._height + 'px';
-        minimapContainer.style.border = '2px solid rgba(255, 255, 255, 0.5)';
-        minimapContainer.style.borderRadius = '8px';
-        minimapContainer.style.position = 'relative';
-        minimapContainer.style.background = '#fff';
-        minimapContainer.style.overflow = 'hidden'; // Per mantenere gli angoli arrotondati
-        minimapContainer.style.backdropFilter = 'blur(8px)';
-        minimapContainer.style.WebkitBackdropFilter = 'blur(8px)';
-        minimapContainer.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.1)';
+        // Create minimapWrapper that will handle the animations
+        const minimapWrapper = document.createElement('div');
+        minimapWrapper.style.width = this._width + 'px';
+        minimapWrapper.style.height = this._height + 'px';
+        minimapWrapper.style.position = 'relative';
+        minimapWrapper.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        minimapWrapper.style.transformOrigin = 'top left'; // Set transform origin to top-left
+        minimapWrapper.style.border = '2px solid rgba(255, 255, 255, 0.5)';
+        minimapWrapper.style.borderRadius = '8px';
+        minimapWrapper.style.overflow = 'hidden';
+        minimapWrapper.style.backdropFilter = 'blur(8px)';
+        minimapWrapper.style.WebkitBackdropFilter = 'blur(8px)';
+        minimapWrapper.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.1)';
+        
+        // Add toggle button
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'minimap-toggle-btn';
+        toggleButton.style.position = 'absolute';
+        toggleButton.style.top = '5px';
+        toggleButton.style.left = '5px';
+        toggleButton.style.width = '25px';
+        toggleButton.style.height = '25px';
+        toggleButton.style.border = 'none';
+        toggleButton.style.borderRadius = '4px';
+        toggleButton.style.backgroundColor = 'white';
+        toggleButton.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
+        toggleButton.style.cursor = 'pointer';
+        toggleButton.style.padding = '0';
+        toggleButton.style.display = 'flex';
+        toggleButton.style.alignItems = 'center';
+        toggleButton.style.justifyContent = 'center';
+        toggleButton.style.zIndex = '1';
+        toggleButton.style.transition = 'background-color 0.2s';
+
+        // Define both icons for minimize and maximize
+        const minimizeIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 14 10 14 10 20"></polyline>
+                <polyline points="20 10 14 10 14 4"></polyline>
+                <line x1="14" y1="10" x2="21" y2="3"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+        `;
+
+        const maximizeIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+        `;
+
+        toggleButton.innerHTML = minimizeIcon;
+
+        // Add hover effect
+        toggleButton.addEventListener('mouseover', () => {
+            toggleButton.style.backgroundColor = '#f0f0f0';
+        });
+        toggleButton.addEventListener('mouseout', () => {
+            toggleButton.style.backgroundColor = 'white';
+        });
+
+        // Add click handler
+        toggleButton.addEventListener('click', () => {
+            this._toggleMinimap(minimapWrapper, toggleButton, minimizeIcon, maximizeIcon);
+        });
+
+        this._container.appendChild(toggleButton);
+        this._container.appendChild(minimapWrapper);
         
         if (map.loaded()) {
-            this._initMinimap(minimapContainer);
+            this._initMinimap(minimapWrapper);
         } else {
-            map.on('load', () => this._initMinimap(minimapContainer));
+            map.on('load', () => this._initMinimap(minimapWrapper));
         }
 
-        this._container.appendChild(minimapContainer);
         return this._container;
+    }
+
+    _toggleMinimap(wrapper, button, minimizeIcon, maximizeIcon) {
+        if (this._isVisible) {
+            // Hide minimap with animation
+            wrapper.style.transform = 'scale(0)';
+            wrapper.style.opacity = '0';
+            button.innerHTML = maximizeIcon; // Switch to maximize icon
+            this._isVisible = false;
+        } else {
+            // Show minimap with animation
+            wrapper.style.transform = 'scale(1)';
+            wrapper.style.opacity = '1';
+            button.innerHTML = minimizeIcon; // Switch to minimize icon
+            this._isVisible = true;
+        }
     }
 
     _initMinimap(container) {
@@ -52,7 +131,6 @@ class MinimapControl {
         if (mainStyle.sources.basemap) {
             minimapStyle.sources.basemap = mainStyle.sources.basemap;
             
-            // Find and copy the basemap layer
             const basemapLayer = mainStyle.layers.find(layer => layer.id === 'basemap');
             if (basemapLayer) {
                 minimapStyle.layers.push(basemapLayer);
@@ -91,20 +169,9 @@ class MinimapControl {
         });
     }
 
-    onRemove() {
-        if (this._minimap) {
-            this._minimap.remove();
-        }
-        if (this._container.parentNode) {
-            this._container.parentNode.removeChild(this._container);
-        }
-        this._mainMap = null;
-    }
-
     _updateMinimap() {
         if (!this._minimap || !this._mainMap) return;
     
-        // Update minimap position
         this._minimap.setCenter(this._mainMap.getCenter());
         this._minimap.setZoom(this._mainMap.getZoom() - this._zoomOffset);
     
@@ -114,7 +181,6 @@ class MinimapControl {
         const viewport = this._mainMap.getContainer();
         const pitch = this._mainMap.getPitch();
         
-        // Calculate viewport corners
         const MAX_Y_OFFSET = viewport.offsetHeight * 0.5;
         
         const corners = [
@@ -123,7 +189,6 @@ class MinimapControl {
             [viewport.offsetWidth, viewport.offsetHeight],
             [0, viewport.offsetHeight]
         ].map(point => {
-            // Adjust top points when pitch is high
             if (point[1] === 0 && pitch > 70) {
                 const factor = (pitch - 70) / 20;
                 const limitedY = Math.min(MAX_Y_OFFSET * factor, MAX_Y_OFFSET);
@@ -132,12 +197,10 @@ class MinimapControl {
             return this._mainMap.unproject(point);
         });
     
-        // Convert to minimap points
         const minimapPoints = corners.map(lngLat => 
             this._minimap.project(lngLat)
         );
     
-        // Calculate middle points for gradient
         const topMidPoint = {
             x: (minimapPoints[0].x + minimapPoints[1].x) / 2,
             y: (minimapPoints[0].y + minimapPoints[1].y) / 2
@@ -148,7 +211,6 @@ class MinimapControl {
             y: (minimapPoints[2].y + minimapPoints[3].y) / 2
         };
     
-        // Create gradient
         const gradient = ctx.createLinearGradient(
             bottomMidPoint.x, bottomMidPoint.y,
             topMidPoint.x, topMidPoint.y
@@ -163,7 +225,6 @@ class MinimapControl {
             gradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
         }
     
-        // Draw viewport polygon
         ctx.beginPath();
         minimapPoints.forEach((point, i) => {
             if (i === 0) ctx.moveTo(point.x, point.y);
@@ -177,6 +238,16 @@ class MinimapControl {
         
         ctx.fill();
         ctx.stroke();
+    }
+
+    onRemove() {
+        if (this._minimap) {
+            this._minimap.remove();
+        }
+        if (this._container.parentNode) {
+            this._container.parentNode.removeChild(this._container);
+        }
+        this._mainMap = null;
     }
 }
 
