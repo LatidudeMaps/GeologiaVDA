@@ -2,6 +2,7 @@ class CopyrightControl {
     constructor() {
         this._container = null;
         this._map = null;
+        this._logo = null;
     }
 
     onAdd(map) {
@@ -30,9 +31,10 @@ class CopyrightControl {
         wrapper.style.gap = '8px';
         wrapper.style.position = 'relative';
 
-        // Add heart icon
-        const heartIcon = this._createHeartIcon();
-        wrapper.appendChild(heartIcon);
+        // Carica il logo da URL
+        this._loadLogo().then(logoElement => {
+            wrapper.insertBefore(logoElement, wrapper.firstChild);
+        });
 
         // Add text container
         const textContainer = document.createElement('div');
@@ -40,21 +42,21 @@ class CopyrightControl {
 
         // Add main text
         const mainText = document.createElement('div');
-        mainText.textContent = 'Geological Explorer';
+        mainText.textContent = '3D GeoTour';
         mainText.style.fontWeight = '500';
         mainText.style.color = '#1a1a1a';
         textContainer.appendChild(mainText);
 
         // Add author text
         const authorText = document.createElement('div');
-        authorText.textContent = 'by Your Name';
+        authorText.textContent = 'by Michele Tricarico / LatidudeMaps';
         authorText.style.color = '#666666';
         authorText.style.fontSize = '11px';
         textContainer.appendChild(authorText);
 
         wrapper.appendChild(textContainer);
 
-        // Add expanded content (initially hidden)
+        // Add expanded content
         const expandedContent = document.createElement('div');
         expandedContent.style.marginTop = '8px';
         expandedContent.style.borderTop = '1px solid rgba(0, 0, 0, 0.1)';
@@ -65,9 +67,9 @@ class CopyrightControl {
 
         // Add links
         const links = [
-            { icon: 'github', text: 'View on GitHub', url: 'https://github.com/yourusername' },
-            { icon: 'twitter', text: 'Follow on Twitter', url: 'https://twitter.com/yourusername' },
-            { icon: 'globe', text: 'Visit Website', url: 'https://yourwebsite.com' }
+            { icon: 'github', text: 'View on GitHub', url: 'https://github.com/LatidudeMaps' },
+            { icon: 'twitter', text: 'Follow on Twitter', url: 'https://x.com/LatidudeMaps' },
+            { icon: 'globe', text: 'Visit Website', url: 'https://latidudemaps.github.io/' }
         ];
 
         links.forEach(link => {
@@ -111,20 +113,42 @@ class CopyrightControl {
         return this._container;
     }
 
-    _createHeartIcon() {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '16');
-        svg.setAttribute('height', '16');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', '#ff4545');
-        svg.setAttribute('stroke-width', '2');
-        svg.setAttribute('stroke-linecap', 'round');
-        svg.setAttribute('stroke-linejoin', 'round');
-        svg.innerHTML = `
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-        `;
-        return svg;
+    async _loadLogo() {
+        try {
+            // Carica l'SVG da URL
+            const response = await fetch('https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/logo_color.svg');
+            const svgText = await response.text();
+            
+            // Crea un elemento SVG
+            const container = document.createElement('div');
+            container.innerHTML = svgText.trim();
+            
+            const svgElement = container.firstChild;
+            
+            // Imposta dimensioni e stile
+            svgElement.setAttribute('width', '24');
+            svgElement.setAttribute('height', '24');
+            svgElement.style.minWidth = '24px';
+            svgElement.style.transition = 'transform 0.3s ease';
+            
+            // Aggiungi hover effect
+            container.addEventListener('mouseenter', () => {
+                svgElement.style.transform = 'scale(1.1)';
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                svgElement.style.transform = 'scale(1)';
+            });
+            
+            return container.firstChild;
+        } catch (error) {
+            console.error('Error loading logo:', error);
+            // Fallback to text if logo fails to load
+            const fallback = document.createElement('div');
+            fallback.textContent = '🗺️';
+            fallback.style.fontSize = '20px';
+            return fallback;
+        }
     }
 
     _createLink({ icon, text, url }) {
