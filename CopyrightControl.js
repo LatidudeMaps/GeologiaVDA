@@ -19,7 +19,7 @@ class CopyrightControl {
         panel.style.WebkitBackdropFilter = 'blur(8px)';
         panel.style.borderRadius = '8px';
         panel.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.1)';
-        panel.style.transition = 'all 0.3s ease';
+        panel.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         panel.style.fontSize = '12px';
         panel.style.lineHeight = '1.4';
         panel.style.maxWidth = '300px';
@@ -58,18 +58,20 @@ class CopyrightControl {
 
         // Add expanded content
         const expandedContent = document.createElement('div');
-        expandedContent.style.marginTop = '8px';
+        expandedContent.style.marginTop = '0';
         expandedContent.style.borderTop = '1px solid rgba(0, 0, 0, 0.1)';
-        expandedContent.style.paddingTop = '8px';
-        expandedContent.style.display = 'none';
+        expandedContent.style.paddingTop = '0';
+        expandedContent.style.maxHeight = '0';
+        expandedContent.style.overflow = 'hidden';
         expandedContent.style.opacity = '0';
-        expandedContent.style.transition = 'opacity 0.3s ease';
+        expandedContent.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        expandedContent.style.transform = 'translateY(-10px)';
 
         // Add links
         const links = [
-            { icon: 'github', text: 'View on GitHub', url: 'https://github.com/LatidudeMaps' },
-            { icon: 'twitter', text: 'Follow on Twitter', url: 'https://x.com/LatidudeMaps' },
-            { icon: 'globe', text: 'Visit Website', url: 'https://latidudemaps.github.io/' }
+            { icon: 'link', text: 'Links & Social Media', url: 'https://linktr.ee/latidudemaps' },
+            { icon: 'globe', text: 'Visit Website', url: 'https://latidudemaps.github.io/' },
+            { icon: 'github', text: 'View on GitHub', url: 'https://github.com/LatidudeMaps' }
         ];
 
         links.forEach(link => {
@@ -90,20 +92,22 @@ class CopyrightControl {
             panel.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
             panel.style.transform = 'translateY(-2px)';
             panel.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-            expandedContent.style.display = 'block';
-            setTimeout(() => {
-                expandedContent.style.opacity = '1';
-            }, 50);
+            expandedContent.style.marginTop = '8px';
+            expandedContent.style.paddingTop = '8px';
+            expandedContent.style.maxHeight = '200px';
+            expandedContent.style.opacity = '1';
+            expandedContent.style.transform = 'translateY(0)';
         });
 
         panel.addEventListener('mouseleave', () => {
             panel.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
             panel.style.transform = 'translateY(0)';
             panel.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.1)';
+            expandedContent.style.marginTop = '0';
+            expandedContent.style.paddingTop = '0';
+            expandedContent.style.maxHeight = '0';
             expandedContent.style.opacity = '0';
-            setTimeout(() => {
-                expandedContent.style.display = 'none';
-            }, 300);
+            expandedContent.style.transform = 'translateY(-10px)';
         });
 
         panel.appendChild(wrapper);
@@ -115,42 +119,47 @@ class CopyrightControl {
 
     async _loadLogo() {
         try {
-            // Carica l'SVG da URL
             const response = await fetch('https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/logo_dark.svg');
             const svgText = await response.text();
             
-            // Crea un parser per l'SVG
             const parser = new DOMParser();
             const doc = parser.parseFromString(svgText, 'image/svg+xml');
             const svgElement = doc.querySelector('svg');
             
             if (svgElement) {
-                // Imposta dimensioni e stile
+                // Crea un container per l'SVG che gestirà l'animazione
+                const container = document.createElement('div');
+                container.style.width = '24px';
+                container.style.height = '24px';
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.justifyContent = 'center';
+                
+                // Imposta le dimensioni e lo stile dell'SVG
                 svgElement.setAttribute('width', '24');
                 svgElement.setAttribute('height', '24');
-                svgElement.style.minWidth = '24px';
-                svgElement.style.transition = 'transform 0.3s ease';
+                svgElement.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
                 
-                // Crea un container per l'hover effect
-                const container = document.createElement('div');
                 container.appendChild(svgElement);
                 
-                // Aggiungi hover effect
-                container.addEventListener('mouseenter', () => {
-                    svgElement.style.transform = 'scale(1.1)';
-                });
+                // Applica l'hover effect al parent panel invece che al container
+                const parentPanel = this._container.querySelector('div');
+                if (parentPanel) {
+                    parentPanel.addEventListener('mouseenter', () => {
+                        svgElement.style.transform = 'scale(1.1)';
+                    });
+                    
+                    parentPanel.addEventListener('mouseleave', () => {
+                        svgElement.style.transform = 'scale(1)';
+                    });
+                }
                 
-                container.addEventListener('mouseleave', () => {
-                    svgElement.style.transform = 'scale(1)';
-                });
-                
-                return svgElement;
+                return container;
             } else {
                 throw new Error('SVG element not found in response');
             }
         } catch (error) {
             console.error('Error loading logo:', error);
-            // Fallback to text if logo fails to load
             const fallback = document.createElement('div');
             fallback.textContent = '🗺️';
             fallback.style.fontSize = '20px';
@@ -169,7 +178,7 @@ class CopyrightControl {
         link.style.textDecoration = 'none';
         link.style.color = '#666666';
         link.style.padding = '4px 0';
-        link.style.transition = 'color 0.2s ease';
+        link.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
         
         const iconSvg = this._getSocialIcon(icon);
         if (iconSvg) {
@@ -182,10 +191,12 @@ class CopyrightControl {
 
         link.addEventListener('mouseenter', () => {
             link.style.color = '#000000';
+            link.style.transform = 'translateX(4px)';
         });
 
         link.addEventListener('mouseleave', () => {
             link.style.color = '#666666';
+            link.style.transform = 'translateX(0)';
         });
 
         return link;
@@ -206,8 +217,8 @@ class CopyrightControl {
             case 'github':
                 svg.innerHTML = `<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>`;
                 break;
-            case 'twitter':
-                svg.innerHTML = `<path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>`;
+            case 'link':
+                svg.innerHTML = `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`;
                 break;
             case 'globe':
                 svg.innerHTML = `<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>`;

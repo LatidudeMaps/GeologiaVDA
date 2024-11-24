@@ -19,9 +19,14 @@ class MinimapControl {
         const minimapContainer = document.createElement('div');
         minimapContainer.style.width = this._width + 'px';
         minimapContainer.style.height = this._height + 'px';
-        minimapContainer.style.border = '1px solid #ccc';
+        minimapContainer.style.border = '2px solid rgba(255, 255, 255, 0.5)';
+        minimapContainer.style.borderRadius = '8px';
         minimapContainer.style.position = 'relative';
         minimapContainer.style.background = '#fff';
+        minimapContainer.style.overflow = 'hidden'; // Per mantenere gli angoli arrotondati
+        minimapContainer.style.backdropFilter = 'blur(8px)';
+        minimapContainer.style.WebkitBackdropFilter = 'blur(8px)';
+        minimapContainer.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.1)';
         
         if (map.loaded()) {
             this._initMinimap(minimapContainer);

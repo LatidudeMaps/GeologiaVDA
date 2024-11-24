@@ -76,13 +76,13 @@ map.addControl(new SettingsControl(), 'top-right');
 
 map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), 'bottom-right');
 
+// Add copyright control
+map.addControl(new CopyrightControl(), 'top-left');
+
 // Minimap Custom Controls
 map.addControl(new MinimapControl({
     zoomOffset: 5
 }), 'top-left');
-
-// Add copyright control
-map.addControl(new CopyrightControl(), 'bottom-left');
 
 map.on('load', () => {
     // Add a hover layer

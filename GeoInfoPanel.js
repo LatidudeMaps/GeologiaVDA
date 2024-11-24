@@ -41,6 +41,7 @@ class GeoInfoPanel {
         this._panel.style.bottom = '10px';    // Posizionato in basso
         this._panel.style.display = 'none';    // Initially hidden
         this._panel.style.zIndex = '1';       // Assicuriamoci che sia sopra la mappa
+        this._panel.style.fontFamily = 'Rubik';
 
         // Aggiunge stili per la scrollbar personalizzata
         this._panel.style.scrollbarWidth = 'thin';
