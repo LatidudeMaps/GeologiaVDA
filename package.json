@@ -4,6 +4,7 @@
   "description": "3D Geological Map of Val d'Agri (Basilicata, Italy) - CC BY-NC-ND 4.0",
   "main": "index.js",
   "type": "module",
+  "homepage": "https://latidudemaps.github.io/GeologiaVDA",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
