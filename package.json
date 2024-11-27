@@ -19,6 +19,10 @@
   },
   "dependencies": {
     "@geomatico/maplibre-cog-protocol": "^0.3.1",
-    "lucide-react": "^0.460.0"
+    "@turf/turf": "^7.1.0",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.13.3"
   }
 }

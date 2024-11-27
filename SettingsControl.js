@@ -1,6 +1,7 @@
 import LayerControl from './LayerControl';
 import GeoInfoPanel from './GeoInfoPanel';
 import MapInfoControl from './MapInfo';
+import ProfileControl from './ProfileControl.jsx';
 import * as maplibregl from 'maplibre-gl';
 
 class SettingsControl {
@@ -11,7 +12,7 @@ class SettingsControl {
         this._controls = [];
         this._controlsContainer = null;
         this._activeButtons = new Set();
-        this._controlStates = new Map(); // Track both button and panel states
+        this._controlStates = new Map();
     }
 
     onAdd(map) {
@@ -59,13 +60,6 @@ class SettingsControl {
                 !e.target.closest('.maplibregl-canvas-container') && 
                 this._isExpanded) {
                 this._hideControls();
-                
-                // Close all control panels when main settings panel is closed
-                this._controlStates.forEach((state, button) => {
-                    if (state.isActive) {
-                        this._toggleControlState(button);
-                    }
-                });
             }
         });
         
@@ -118,21 +112,9 @@ class SettingsControl {
                     background-color: rgba(51, 181, 229, 0.1) !important;
                 }
 
-                /* Specific active states for each control type */
-                .settings-controls-container .maplibregl-ctrl-layers.active {
-                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpolygon points="12 2 2 7 12 12 22 7 12 2"/%3E%3Cpolyline points="2 17 12 22 22 17"/%3E%3Cpolyline points="2 12 12 17 22 12"/%3E%3C/svg%3E') !important;
-                }
-
-                .settings-controls-container .maplibregl-ctrl-inspect.active {
-                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Ccircle cx="11" cy="11" r="8"/%3E%3Cline x1="21" y1="21" x2="16.65" y2="16.65"/%3E%3C/svg%3E') !important;
-                }
-
-                .settings-controls-container .maplibregl-ctrl-zoom-info.active {
-                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Ccircle cx="12" cy="12" r="10"/%3E%3Cline x1="2" y1="12" x2="22" y2="12"/%3E%3Cline x1="12" y1="2" x2="12" y2="22"/%3E%3C/svg%3E') !important;
-                }
-
-                .settings-controls-container .maplibregl-ctrl-fullscreen.active {
-                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/%3E%3C/svg%3E') !important;
+                .settings-controls-container .maplibregl-ctrl-profile.active {
+                    background-color: rgba(51, 181, 229, 0.1) !important;
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M2 12h6l3-9 3 18 3-9h5"/%3E%3C/svg%3E') !important;
                 }
 
                 .maplibregl-ctrl-group {
@@ -151,6 +133,7 @@ class SettingsControl {
             { instance: new LayerControl(), className: 'maplibregl-ctrl-layers' },
             { instance: new GeoInfoPanel(), className: 'maplibregl-ctrl-inspect' },
             { instance: new MapInfoControl(), className: 'maplibregl-ctrl-zoom-info' },
+            { instance: new ProfileControl(), className: 'maplibregl-ctrl-profile' },
             { instance: new maplibregl.GeolocateControl({
                 positionOptions: { enableHighAccuracy: true },
                 trackUserLocation: true
@@ -166,8 +149,10 @@ class SettingsControl {
             const controlContainer = control.instance.onAdd(map);
             controlContainer.style.position = 'relative';
             controlContainer.style.marginBottom = '5px';
+
+            // Find the button and associated panel within the control container
             const button = controlContainer.querySelector('button');
-            const panel = controlContainer.querySelector('div:not(button)'); // Get the panel div
+            const panel = controlContainer.querySelector('div:not(button)');
 
             if (button && panel) {
                 // Initialize control state
@@ -182,12 +167,6 @@ class SettingsControl {
                     e.stopPropagation();
                     this._toggleControlState(button);
                 });
-
-                // Remove any existing click handlers on the document
-                const existingHandler = panel._clickHandler;
-                if (existingHandler) {
-                    document.removeEventListener('click', existingHandler);
-                }
             }
 
             this._controlsContainer.appendChild(controlContainer);
@@ -203,24 +182,11 @@ class SettingsControl {
         state.isActive = !state.isActive;
         
         if (state.isActive) {
-            // Deactivate other controls first
-            this._controlStates.forEach((otherState, otherButton) => {
-                if (otherButton !== button && otherState.isActive) {
-                    otherState.isActive = false;
-                    otherButton.classList.remove('active');
-                    if (otherState.panel) {
-                        otherState.panel.style.display = 'none';
-                    }
-                }
-            });
-
-            // Activate current control
             button.classList.add('active');
             if (state.panel) {
                 state.panel.style.display = 'block';
             }
         } else {
-            // Deactivate current control
             button.classList.remove('active');
             if (state.panel) {
                 state.panel.style.display = 'none';
