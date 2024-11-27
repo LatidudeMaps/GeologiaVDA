@@ -322,8 +322,6 @@ class ProfileControl {
         // Create the chart component
         const ChartComponent = () => {
             const elevations = data.map(d => d.elevation);
-            
-            // Calculate min and max elevations
             const minElevation = Math.floor(Math.min(...elevations));
             const maxElevation = Math.ceil(Math.max(...elevations));
             
@@ -353,28 +351,31 @@ class ProfileControl {
                         onMouseMove={this._handleChartHover.bind(this)}
                         onMouseLeave={this._handleChartLeave.bind(this)}
                     >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} stroke='red'/>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} stroke="#ccc"/>
                         <XAxis 
                             dataKey="distance"
                             padding={{ left: 20, right: 20 }} 
                             label={{
                                 value: 'Distanza (km)',
                                 position: 'bottom',
-                                offset: 10
+                                offset: 20
                             }}
                             tickFormatter={(value) => value.toFixed(1)}
-                            interval={Math.ceil(data.length / 10)}
+                            // Rimuovi interval
+                            domain={[0, 'dataMax']} // Aggiungi dominio esplicito
+                            ticks={data  // Definisci i tick manualmente
+                                .filter((_, i) => i % Math.ceil(data.length / 10) === 0)
+                                .map(d => d.distance)}
                         />
                         <YAxis
                             dataKey="elevation"
-                            padding={{ top: 20, bottom: 20 }}
                             domain={[adjustedMin, adjustedMax]}
                             ticks={ticks}
                             label={{ 
                                 value: 'Elevazione (m)', 
                                 angle: -90, 
                                 position: 'insideLeft',
-                                offset: -10,
+                                offset: -20,
                                 style: {
                                     textAnchor: 'middle'
                                 }
@@ -382,14 +383,6 @@ class ProfileControl {
                             tickFormatter={(value) => value.toFixed(0)}
                         />
                         <Tooltip content={this._customTooltip} />
-                        <Line 
-                            type="monotone" 
-                            dataKey="elevation" 
-                            stroke="red" 
-                            dot={false} 
-                            strokeWidth={2}
-                            name="Elevazione"
-                        />
                         {this._createGeologySegments(data, this._getGeologyColors([...new Set(data.map(d => d.geology))]))}
                         <Legend 
                             verticalAlign="top"
@@ -437,38 +430,35 @@ class ProfileControl {
     }
 
     _createGeologySegments(data, colors) {
-        // Crea segmenti colorati per le diverse formazioni geologiche
-        const segments = [];
-        let currentFormation = data[0].geology;
-        let startIndex = 0;
-
-        data.forEach((point, index) => {
-            if (point.geology !== currentFormation || index === data.length - 1) {
-                segments.push({
-                    formation: currentFormation,
-                    start: startIndex,
-                    end: index
-                });
-                currentFormation = point.geology;
-                startIndex = index;
-            }
-        });
-
-        // Crea le aree colorate per ogni segmento
-        return segments.map((segment, index) => {
-            const segmentData = data.slice(segment.start, segment.end + 1);
-            return (
-                <Area
-                    key={index}
-                    dataKey="elevation"
-                    data={segmentData}
-                    fill={colors[segment.formation]}
-                    fillOpacity={0.3}
-                    stroke="none"
-                    name={segment.formation}
-                />
-            );
-        });
+        // Creiamo una singola Line per ogni diversa formazione geologica
+        const uniqueFormations = [...new Set(data.map(d => d.geology))];
+        
+        return (
+            <>
+                {uniqueFormations.map(formation => {
+                    // Filtriamo i dati per questa formazione
+                    const formationData = data.map(d => ({
+                        ...d,
+                        elevation: d.geology === formation ? d.elevation : null
+                    }));
+    
+                    return (
+                        <Line
+                            key={formation}
+                            type="monotone"
+                            dataKey="elevation"
+                            data={formationData}
+                            stroke={colors[formation]}
+                            strokeWidth={3}
+                            dot={false}
+                            name={formation}
+                            isAnimationActive={false}
+                            connectNulls={true}
+                        />
+                    );
+                })}
+            </>
+        );
     }
 
     _customTooltip = ({ active, payload, label }) => {

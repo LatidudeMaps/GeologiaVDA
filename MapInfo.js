@@ -86,6 +86,13 @@ class MapInfoControl {
                     background-repeat: no-repeat;
                     background-size: 20px;
                 }
+
+                .maplibregl-ctrl-zoom-info.active {
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Ccircle cx="12" cy="12" r="10"/%3E%3Cline x1="2" y1="12" x2="22" y2="12"/%3E%3Cline x1="12" y1="2" x2="12" y2="22"/%3E%3C/svg%3E');
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    background-size: 20px;
+                }
             `;
             document.head.appendChild(style);
         }

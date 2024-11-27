@@ -1,7 +1,7 @@
 import LayerControl from './LayerControl';
 import GeoInfoPanel from './GeoInfoPanel';
 import MapInfoControl from './MapInfo';
-import ProfileControl from './ProfileControl.jsx';
+//import ProfileControl from './ProfileControl.jsx';
 import * as maplibregl from 'maplibre-gl';
 
 class SettingsControl {
@@ -133,7 +133,7 @@ class SettingsControl {
             { instance: new LayerControl(), className: 'maplibregl-ctrl-layers' },
             { instance: new GeoInfoPanel(), className: 'maplibregl-ctrl-inspect' },
             { instance: new MapInfoControl(), className: 'maplibregl-ctrl-zoom-info' },
-            { instance: new ProfileControl(), className: 'maplibregl-ctrl-profile' },
+            //{ instance: new ProfileControl(), className: 'maplibregl-ctrl-profile' },
             { instance: new maplibregl.GeolocateControl({
                 positionOptions: { enableHighAccuracy: true },
                 trackUserLocation: true
