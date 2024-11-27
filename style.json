@@ -41,9 +41,22 @@
         "peaks": {
             "type": "geojson",
             "data": "https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/peaks.geojson"
+        },
+        "mask-source": {
+            "type": "geojson",
+            "data": "https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/mask.geojson"
         }
     },
     "layers": [
+        {
+            "id": "mask",
+            "source": "mask-source",
+            "type": "fill",
+            "paint": {
+                "fill-color": "#ffffff",
+                "fill-opacity": 1
+            }
+        },
         {
             "id": "basemap",
             "type": "raster",
