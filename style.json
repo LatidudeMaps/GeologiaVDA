@@ -49,15 +49,6 @@
     },
     "layers": [
         {
-            "id": "mask",
-            "source": "mask-source",
-            "type": "fill",
-            "paint": {
-                "fill-color": "#ffffff",
-                "fill-opacity": 1
-            }
-        },
-        {
             "id": "basemap",
             "type": "raster",
             "source": "basemap"
