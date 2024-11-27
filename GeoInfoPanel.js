@@ -7,7 +7,7 @@ class GeoInfoPanel {
         this._currentFeature = null;
         this._panel = null;
         this._button = null;
-        this._isVisible = false;
+        this._isActive = false;  // Nuovo stato per tracciare se il pannello è attivo
     }
 
     onAdd(map) {
@@ -15,7 +15,7 @@ class GeoInfoPanel {
         this._container = document.createElement('div');
         this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
         
-        // Create toggle button using MapLibre's native style
+        // Create toggle button
         this._button = document.createElement('button');
         this._button.type = 'button';
         this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-inspect';
@@ -27,20 +27,19 @@ class GeoInfoPanel {
         // Create the panel container
         this._panel = document.createElement('div');
         this._panel.style.padding = '15px';
-        this._panel.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';  // Sfondo semi-trasparente
-        this._panel.style.backdropFilter = 'blur(8px)';                  // Effetto blur
-        this._panel.style.WebkitBackdropFilter = 'blur(8px)';           // Per Safari
-        this._panel.style.borderRadius = '8px';                         // Bordi più arrotondati
-        this._panel.style.boxShadow = '0 14px 20px rgba(0, 0, 0, 0.2)'; // Ombra sottile
-        //this._panel.style.border = '1px solid rgba(255, 255, 255, 0.3)';// Bordo sottile
+        this._panel.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+        this._panel.style.backdropFilter = 'blur(8px)';
+        this._panel.style.WebkitBackdropFilter = 'blur(8px)';
+        this._panel.style.borderRadius = '8px';
+        this._panel.style.boxShadow = '0 14px 20px rgba(0, 0, 0, 0.2)';
         this._panel.style.width = '600px';
         this._panel.style.maxHeight = '500px';
         this._panel.style.overflowY = 'auto';
-        this._panel.style.position = 'fixed';  // Cambiato da 'absolute' a 'fixed'
-        this._panel.style.left = '10px';      // Posizionato a sinistra
-        this._panel.style.bottom = '10px';    // Posizionato in basso
-        this._panel.style.display = 'none';    // Initially hidden
-        this._panel.style.zIndex = '1';       // Assicuriamoci che sia sopra la mappa
+        this._panel.style.position = 'fixed';
+        this._panel.style.left = '10px';
+        this._panel.style.bottom = '10px';
+        this._panel.style.display = 'none';
+        this._panel.style.zIndex = '1';
         this._panel.style.fontFamily = 'Rubik';
 
         // Aggiunge stili per la scrollbar personalizzata
@@ -74,21 +73,20 @@ class GeoInfoPanel {
             this._togglePanel();
         });
 
-        // Add click handler to close panel when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!this._container.contains(e.target) && 
-                !this._panel.contains(e.target) &&
-                !e.target.closest('.maplibregl-canvas-container') && 
-                this._isVisible) {
-                this._hidePanel();
-            }
-        });
-
         // Append button to container
         this._container.appendChild(this._button);
         
         // Append panel directly to body
         document.body.appendChild(this._panel);
+
+        // Set up event listeners for map interactions
+        map.on('click', 'geologiaVDA', this._handleClick.bind(this));
+        
+        // Add click handler for toggle button
+        this._button.addEventListener('click', () => {
+            this._isActive = !this._isActive;  // Toggle lo stato attivo
+            this._togglePanel();
+        });
 
         // Set up event listeners for map interactions
         map.on('click', 'geologiaVDA', this._handleClick.bind(this));
@@ -107,37 +105,32 @@ class GeoInfoPanel {
                     background-repeat: no-repeat;
                     background-size: 20px;
                 }
+                
+                .maplibregl-ctrl-inspect.active {
+                    background-color: rgba(51, 181, 229, 0.1) !important;
+                    background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2333b5e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Ccircle cx="11" cy="11" r="8"/%3E%3Cline x1="21" y1="21" x2="16.65" y2="16.65"/%3E%3C/svg%3E') !important;
+                }
             `;
             document.head.appendChild(style);
         }
     }
 
     _togglePanel() {
-        if (this._isVisible) {
-            this._hidePanel();
+        if (this._isActive) {
+            this._panel.style.display = 'block';
+            this._button.classList.add('active');
         } else {
-            this._showPanel();
+            this._panel.style.display = 'none';
+            this._button.classList.remove('active');
         }
-    }
-
-    _showPanel() {
-        this._panel.style.display = 'block';
-        this._isVisible = true;
-        this._button.style.backgroundColor = '#e5e5e5';
-    }
-
-    _hidePanel() {
-        this._panel.style.display = 'none';
-        this._isVisible = false;
-        this._button.style.backgroundColor = '';
     }
 
     _handleClick(e) {
         if (e.features.length > 0) {
             const feature = e.features[0];
             this._updateContent(feature.properties);
-            if (!this._isVisible) {
-                this._showPanel();
+            if (this._isActive) {  // Mostra il contenuto solo se il pannello è attivo
+                this._panel.style.display = 'block';
             }
         }
     }
@@ -317,7 +310,6 @@ class GeoInfoPanel {
         const descText = document.createElement('span');
         descText.textContent = properties.Description;
         descText.style.color = '#393939';
-        //descText.style.lineHeight = '1.4';
 
         descContainer.appendChild(descIcon);
         descContainer.appendChild(descText);
@@ -334,7 +326,6 @@ class GeoInfoPanel {
         if (this._map) {
             this._map.off('click', 'geologiaVDA', this._handleClick);
         }
-        document.removeEventListener('click', this._hidePanel);
         this._map = null;
     }
 }

@@ -10,7 +10,8 @@ class SettingsControl {
         this._isExpanded = false;
         this._controls = [];
         this._controlsContainer = null;
-        this._activeButtons = new Set(); // Track active buttons
+        this._activeButtons = new Set();
+        this._controlStates = new Map(); // Track both button and panel states
     }
 
     onAdd(map) {
@@ -46,18 +47,25 @@ class SettingsControl {
         this._controlsContainer.style.transform = 'translateY(-10px)';
         this._controlsContainer.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         
-        // Add click handler
+        // Add click handler for main settings button
         this._button.addEventListener('click', (e) => {
             e.stopPropagation();
             this._toggleControls();
         });
         
-        // Add click handler to close when clicking outside
+        // Add click handler to close settings panel when clicking outside
         document.addEventListener('click', (e) => {
             if (!this._container.contains(e.target) && 
                 !e.target.closest('.maplibregl-canvas-container') && 
                 this._isExpanded) {
                 this._hideControls();
+                
+                // Close all control panels when main settings panel is closed
+                this._controlStates.forEach((state, button) => {
+                    if (state.isActive) {
+                        this._toggleControlState(button);
+                    }
+                });
             }
         });
         
@@ -128,7 +136,7 @@ class SettingsControl {
                 }
 
                 .maplibregl-ctrl-group {
-                    background: #fff
+                    background: #fff;
                     border-radius: 4px;
                     box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
                 }
@@ -158,15 +166,28 @@ class SettingsControl {
             const controlContainer = control.instance.onAdd(map);
             controlContainer.style.position = 'relative';
             controlContainer.style.marginBottom = '5px';
-
-            // Find the button within the control container
             const button = controlContainer.querySelector('button');
-            if (button) {
+            const panel = controlContainer.querySelector('div:not(button)'); // Get the panel div
+
+            if (button && panel) {
+                // Initialize control state
+                this._controlStates.set(button, {
+                    panel: panel,
+                    isActive: false,
+                    className: control.className
+                });
+
                 // Add click handler for tracking active state
                 button.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    this._toggleButtonState(button, control.className);
+                    this._toggleControlState(button);
                 });
+
+                // Remove any existing click handlers on the document
+                const existingHandler = panel._clickHandler;
+                if (existingHandler) {
+                    document.removeEventListener('click', existingHandler);
+                }
             }
 
             this._controlsContainer.appendChild(controlContainer);
@@ -174,14 +195,36 @@ class SettingsControl {
         });
     }
 
-    _toggleButtonState(button, className) {
-        // Toggle active state
-        if (button.classList.contains('active')) {
-            button.classList.remove('active');
-            this._activeButtons.delete(className);
-        } else {
+    _toggleControlState(button) {
+        const state = this._controlStates.get(button);
+        if (!state) return;
+
+        // Toggle the current control
+        state.isActive = !state.isActive;
+        
+        if (state.isActive) {
+            // Deactivate other controls first
+            this._controlStates.forEach((otherState, otherButton) => {
+                if (otherButton !== button && otherState.isActive) {
+                    otherState.isActive = false;
+                    otherButton.classList.remove('active');
+                    if (otherState.panel) {
+                        otherState.panel.style.display = 'none';
+                    }
+                }
+            });
+
+            // Activate current control
             button.classList.add('active');
-            this._activeButtons.add(className);
+            if (state.panel) {
+                state.panel.style.display = 'block';
+            }
+        } else {
+            // Deactivate current control
+            button.classList.remove('active');
+            if (state.panel) {
+                state.panel.style.display = 'none';
+            }
         }
     }
 
@@ -206,6 +249,18 @@ class SettingsControl {
         this._controlsContainer.style.transform = 'translateY(-10px)';
         this._button.classList.remove('active');
         this._isExpanded = false;
+        
+        // When hiding the main controls, also hide all sub-panels and deactivate buttons
+        this._controlStates.forEach((state, button) => {
+            if (state.isActive) {
+                state.isActive = false;
+                button.classList.remove('active');
+                if (state.panel) {
+                    state.panel.style.display = 'none';
+                }
+            }
+        });
+
         setTimeout(() => {
             if (!this._isExpanded) {
                 this._controlsContainer.style.visibility = 'hidden';

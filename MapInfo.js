@@ -2,6 +2,8 @@ class MapInfoControl {
     constructor() {
         this._container = null;
         this._map = null;
+        this._panel = null;
+        this._button = null;
     }
 
     onAdd(map) {
@@ -9,7 +11,7 @@ class MapInfoControl {
         this._container = document.createElement('div');
         this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
         
-        // Create toggle button using MapLibre's native style
+        // Create toggle button
         this._button = document.createElement('button');
         this._button.type = 'button';
         this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-zoom-info';
@@ -19,18 +21,18 @@ class MapInfoControl {
         this._addZoomInfoStyles();
         
         // Create info box
-        const infoBox = document.createElement('div');
-        infoBox.style.padding = '10px';
-        infoBox.style.minWidth = '220px';
-        infoBox.style.backgroundColor = 'white';
-        infoBox.style.fontFamily = 'monospace';
-        infoBox.style.fontSize = '12px';
-        infoBox.style.position = 'absolute';
-        infoBox.style.right = '40px';
-        infoBox.style.bottom = '0';
-        infoBox.style.display = 'none';  // Initially hidden
-        infoBox.style.borderRadius = '4px';
-        infoBox.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+        this._panel = document.createElement('div');
+        this._panel.style.padding = '10px';
+        this._panel.style.minWidth = '220px';
+        this._panel.style.backgroundColor = 'white';
+        this._panel.style.fontFamily = 'monospace';
+        this._panel.style.fontSize = '12px';
+        this._panel.style.position = 'absolute';
+        this._panel.style.right = '40px';
+        this._panel.style.bottom = '0';
+        this._panel.style.display = 'none';
+        this._panel.style.borderRadius = '4px';
+        this._panel.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
         
         // Create elements for each parameter
         const zoomInfo = document.createElement('div');
@@ -38,10 +40,10 @@ class MapInfoControl {
         const bearingInfo = document.createElement('div');
         const pitchInfo = document.createElement('div');
         
-        infoBox.appendChild(zoomInfo);
-        infoBox.appendChild(boundsInfo);
-        infoBox.appendChild(bearingInfo);
-        infoBox.appendChild(pitchInfo);
+        this._panel.appendChild(zoomInfo);
+        this._panel.appendChild(boundsInfo);
+        this._panel.appendChild(bearingInfo);
+        this._panel.appendChild(pitchInfo);
         
         // Update function
         const updateInfo = () => {
@@ -57,21 +59,7 @@ class MapInfoControl {
         
         // Add click handler for toggle button
         this._button.addEventListener('click', () => {
-            if (infoBox.style.display === 'none') {
-                infoBox.style.display = 'block';
-                this._button.style.backgroundColor = '#e5e5e5';
-            } else {
-                infoBox.style.display = 'none';
-                this._button.style.backgroundColor = '';
-            }
-        });
-
-        // Add click handler to close panel when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!this._container.contains(e.target) && infoBox.style.display === 'block') {
-                infoBox.style.display = 'none';
-                this._button.style.backgroundColor = '';
-            }
+            this._togglePanel();
         });
         
         // Add event listeners for all relevant map movements
@@ -83,7 +71,7 @@ class MapInfoControl {
         updateInfo();
         
         this._container.appendChild(this._button);
-        this._container.appendChild(infoBox);
+        this._container.appendChild(this._panel);
         return this._container;
     }
 
@@ -100,6 +88,16 @@ class MapInfoControl {
                 }
             `;
             document.head.appendChild(style);
+        }
+    }
+
+    _togglePanel() {
+        if (this._panel.style.display === 'none') {
+            this._panel.style.display = 'block';
+            this._button.style.backgroundColor = '#e5e5e5';
+        } else {
+            this._panel.style.display = 'none';
+            this._button.style.backgroundColor = '';
         }
     }
 

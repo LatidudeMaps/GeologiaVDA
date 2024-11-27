@@ -3,6 +3,8 @@ class LayerControl {
         this._map = null;
         this._container = null;
         this._layerStates = new Map();
+        this._panel = null;
+        this._button = null;
     }
 
     onAdd(map) {
@@ -20,16 +22,16 @@ class LayerControl {
         this._addLayersStyles();
         
         // Create the control panel container
-        const panel = document.createElement('div');
-        panel.style.padding = '10px';
-        panel.style.backgroundColor = 'white';
-        panel.style.borderRadius = '4px';
-        panel.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
-        panel.style.minWidth = '200px';
-        panel.style.position = 'absolute';
-        panel.style.right = '40px';
-        panel.style.top = '0';
-        panel.style.display = 'none';  // Initially hidden
+        this._panel = document.createElement('div');
+        this._panel.style.padding = '10px';
+        this._panel.style.backgroundColor = 'white';
+        this._panel.style.borderRadius = '4px';
+        this._panel.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+        this._panel.style.minWidth = '200px';
+        this._panel.style.position = 'absolute';
+        this._panel.style.right = '40px';
+        this._panel.style.top = '0';
+        this._panel.style.display = 'none';  // Initially hidden
 
         // Add title
         const title = document.createElement('div');
@@ -38,13 +40,13 @@ class LayerControl {
         title.style.marginBottom = '10px';
         title.style.borderBottom = '1px solid #ccc';
         title.style.paddingBottom = '5px';
-        panel.appendChild(title);
+        this._panel.appendChild(title);
 
         // Wait for the map to load before adding layer controls
         if (map.loaded()) {
-            this._addLayerControls(panel);
+            this._addLayerControls(this._panel);
         } else {
-            map.on('load', () => this._addLayerControls(panel));
+            map.on('load', () => this._addLayerControls(this._panel));
         }
 
         // Add click handler for toggle button
@@ -52,16 +54,8 @@ class LayerControl {
             this._togglePanel();
         });
 
-        // Add click handler to close panel when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!this._container.contains(e.target) && panel.style.display === 'block') {
-                panel.style.display = 'none';
-                this._button.style.backgroundColor = '';
-            }
-        });
-
         this._container.appendChild(this._button);
-        this._container.appendChild(panel);
+        this._container.appendChild(this._panel);
         return this._container;
     }
 
@@ -82,12 +76,11 @@ class LayerControl {
     }
 
     _togglePanel() {
-        const panel = this._container.querySelector('div:nth-child(2)');
-        if (panel.style.display === 'none') {
-            panel.style.display = 'block';
+        if (this._panel.style.display === 'none') {
+            this._panel.style.display = 'block';
             this._button.style.backgroundColor = '#e5e5e5';
         } else {
-            panel.style.display = 'none';
+            this._panel.style.display = 'none';
             this._button.style.backgroundColor = '';
         }
     }
