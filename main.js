@@ -27,10 +27,10 @@ protocol.add(cities_p);
 // MAP
 const map = new maplibregl.Map({
     container: 'map',
-    hash: true,
+    //hash: true,
     style: style,
-    center: [16, 40],
-    zoom: 12,
+    center: [15.85,40.38],
+    zoom: 11.25,
     maxPitch: 85,
     maxBounds: [
         [15.5325, 40.2507],
