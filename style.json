@@ -85,7 +85,7 @@
             "minzoom": 10,
             "layout": {
                 "text-field": ["get", "Sigla"],
-                "text-font": ["Montserrat Regular"],
+                "text-font": ["Roboto Regular"],
                 "text-size": [
                     "interpolate",
                     ["linear"],
@@ -132,14 +132,14 @@
             "minzoom": 10,
             "layout": {
                 "text-field": ["get", "loc_sg_top"],
-                "text-font": ["Montserrat Regular"],
+                "text-font": ["Roboto Regular"],
                 "text-size": [
                     "interpolate",
                     ["linear"],
                     ["zoom"],
-                    10, 12,
-                    12, 14,
-                    14, 16
+                    10, 10,
+                    12, 12,
+                    14, 14
                 ],
                 "text-allow-overlap": false,
                 "text-ignore-placement": false,
@@ -150,7 +150,7 @@
                 "text-anchor": "center"
             },
             "paint": {
-                "text-color": "#ffffff",
+                "text-color": "black",
                 "text-opacity": [
                     "interpolate",
                     ["linear"],
@@ -199,7 +199,7 @@
                     ["number-format", ["get", "elevation"], {"locale": "it-IT"}],
                     "m"
                 ],
-                "text-font": ["Montserrat Regular"],
+                "text-font": ["Roboto Regular"],
                 "text-size": [
                     "interpolate",
                     ["linear"],
