@@ -69,6 +69,7 @@ class CopyrightControl {
 
         // Add links
         const links = [
+            { icon: 'link', text: 'Read the Paper', url: 'https://doi.org/10.1080/17445647.2023.2257729' },
             { icon: 'link', text: 'Links & Social Media', url: 'https://linktr.ee/latidudemaps' },
             { icon: 'globe', text: 'Visit Website', url: 'https://latidudemaps.github.io/' },
             { icon: 'github', text: 'View on GitHub', url: 'https://github.com/LatidudeMaps' }
