@@ -150,7 +150,7 @@
                 "text-anchor": "center"
             },
             "paint": {
-                "text-color": "black",
+                "text-color": "white",
                 "text-opacity": [
                     "interpolate",
                     ["linear"],
