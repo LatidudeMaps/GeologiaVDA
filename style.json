@@ -63,7 +63,7 @@
             "type": "raster",
             "source": "hillshadeSource",
             "paint": {
-                "raster-opacity": 0.3,
+                "raster-opacity": 0.5,
                 "raster-resampling": "linear"
             }
         },
@@ -132,7 +132,7 @@
             "minzoom": 10,
             "layout": {
                 "text-field": ["get", "loc_sg_top"],
-                "text-font": ["Roboto Regular"],
+                "text-font": ["Roboto Bold"],
                 "text-size": [
                     "interpolate",
                     ["linear"],
@@ -199,7 +199,7 @@
                     ["number-format", ["get", "elevation"], {"locale": "it-IT"}],
                     "m"
                 ],
-                "text-font": ["Roboto Regular"],
+                "text-font": ["Roboto Italic"],
                 "text-size": [
                     "interpolate",
                     ["linear"],

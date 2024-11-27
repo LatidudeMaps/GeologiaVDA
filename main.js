@@ -7,7 +7,7 @@ import './node_modules/maplibre-gl/dist/maplibre-gl.css';
 // import MapInfoControl from './MapInfo';
 // import GeoInfoPanel from './GeoInfoPanel';
 import MinimapControl from './MinimapControls';
-import TerrainControls from './TerrainControls';
+//import TerrainControls from './TerrainControls';
 import SettingsControl from './SettingsControl';
 import CopyrightControl from './CopyrightControl';
 
@@ -44,7 +44,7 @@ map.addControl(new maplibregl.NavigationControl({
 }));
 
 // Modified controls for terrain and hillshade opacity
-map.addControl(new TerrainControls(), 'top-right');
+//map.addControl(new TerrainControls(), 'top-right');
 
 // Add settings wrapper control (contains LayerControl, GeoInfoPanel, MapInfoControl, TerrainControls)
 map.addControl(new SettingsControl(), 'top-right');
