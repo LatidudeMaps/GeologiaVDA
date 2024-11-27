@@ -1,42 +1,36 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import * as maplibregl from 'maplibre-gl';
 import * as turf from '@turf/turf';
-import {
-    AreaChart,
+import { locationValues } from '@geomatico/maplibre-cog-protocol';
+import { 
+    AreaChart, 
     Area, 
-    LineChart, 
-    Line, 
     XAxis, 
     YAxis, 
     CartesianGrid, 
     Tooltip, 
-    Legend,
-    ResponsiveContainer
+    ResponsiveContainer 
 } from 'recharts';
-import React, { PureComponent } from 'react';
-import { createRoot } from 'react-dom/client';
-import { locationValues } from '@geomatico/maplibre-cog-protocol';
-import maplibregl from 'maplibre-gl';
 
 class ProfileControl {
     constructor() {
         this._container = null;
         this._map = null;
-        this._isDrawing = false;
-        this._lineString = null;
-        this._points = [];
-        this._panel = null;
         this._button = null;
-        this._drawLine = null;
-        this._chartRoot = null;
-        this._demUrl = 'https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/DEM_VDA_5m_COG.tif'; // Sostituisci con l'URL del tuo DEM
+        this._panel = null;
+        this._isDrawing = false;
+        this._points = [];
         this._marker = null;
-        this._lineString = null;
+        this._chartRoot = null;
+        this._demUrl = 'https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/DEM_VDA_5m_COG.tif';
     }
 
     onAdd(map) {
         this._map = map;
         this._container = document.createElement('div');
         this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
-        
+
         // Create toggle button
         this._button = document.createElement('button');
         this._button.type = 'button';
@@ -45,44 +39,31 @@ class ProfileControl {
 
         // Add CSS for the profile icon
         this._addProfileStyles();
-        
-        // Create the panel container
+
+        // Create panel
         this._panel = document.createElement('div');
-        this._panel.style.padding = '15px';
+        this._panel.style.padding = '5px';
         this._panel.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
         this._panel.style.backdropFilter = 'blur(8px)';
         this._panel.style.WebkitBackdropFilter = 'blur(8px)';
         this._panel.style.borderRadius = '8px';
         this._panel.style.boxShadow = '0 14px 20px rgba(0, 0, 0, 0.2)';
-        this._panel.style.width = '800px';
-        this._panel.style.height = '400px';
+        this._panel.style.width = '600px';
+        this._panel.style.height = '300px';
         this._panel.style.position = 'fixed';
         this._panel.style.left = '50%';
-        this._panel.style.bottom = '10px'; // Cambiato da top a bottom
-        this._panel.style.transform = 'translateX(-50%)'; // Rimosso translateY
+        this._panel.style.bottom = '10px';
+        this._panel.style.transform = 'translateX(-50%)';
         this._panel.style.display = 'none';
         this._panel.style.zIndex = '1000';
         this._panel.style.fontFamily = 'Rubik';
-
-        // Create content container
-        const content = document.createElement('div');
-        content.id = 'profile-content';
-        content.style.width = '100%';
-        content.style.height = '100%';
-        this._panel.appendChild(content);
 
         // Add click handler for toggle button
         this._button.addEventListener('click', () => {
             this._toggleDrawing();
         });
 
-        // Setup map click handler
-        this._map.on('click', this._handleMapClick.bind(this));
-        
-        // Setup mousemove handler for line preview
-        this._map.on('mousemove', this._handleMouseMove.bind(this));
-
-        // Add line source and layer
+        // Initialize map source and layer
         map.on('load', () => {
             map.addSource('profile-line', {
                 type: 'geojson',
@@ -107,10 +88,19 @@ class ProfileControl {
             });
         });
 
-        // Append button and panel
+        // Add event listeners
+        map.on('click', this._handleMapClick.bind(this));
+        map.on('mousemove', this._handleMouseMove.bind(this));
+
+        // Initialize marker
+        this._marker = new maplibregl.Marker({
+            color: '#33b5e5',
+            scale: 0.8
+        });
+
         this._container.appendChild(this._button);
         document.body.appendChild(this._panel);
-        
+
         return this._container;
     }
 
@@ -142,15 +132,15 @@ class ProfileControl {
             this._button.classList.add('active');
             this._points = [];
             this._map.getCanvas().style.cursor = 'crosshair';
-            
-            // Reset line
             this._updateLine([]);
         } else {
             this._button.classList.remove('active');
             this._map.getCanvas().style.cursor = '';
-            
-            if (this._points.length > 1) {
-                this._createProfile();
+            this._points = [];
+            this._updateLine([]);
+            this._panel.style.display = 'none';
+            if (this._marker) {
+                this._marker.remove();
             }
         }
     }
@@ -158,19 +148,29 @@ class ProfileControl {
     _handleMapClick(e) {
         if (!this._isDrawing) return;
 
-        const coord = [e.lngLat.lng, e.lngLat.lat];
-        this._points.push(coord);
+        this._points.push([e.lngLat.lng, e.lngLat.lat]);
+        this._updateLine(this._points);
         
         if (this._points.length === 2) {
-            this._toggleDrawing(); // Automatically stop drawing after second point
+            // Verifichiamo che i punti non siano identici
+            const [p1, p2] = this._points;
+            if (p1[0] === p2[0] && p1[1] === p2[1]) {
+                console.warn('I punti selezionati sono identici');
+                this._points.pop(); // Rimuoviamo l'ultimo punto
+                return;
+            }
+            this._isDrawing = false;
+            this._map.getCanvas().style.cursor = '';
+            this._button.classList.remove('active');
+            this._generateProfile();
         }
     }
 
     _handleMouseMove(e) {
         if (!this._isDrawing || this._points.length === 0) return;
 
-        const coord = [e.lngLat.lng, e.lngLat.lat];
-        this._updateLine([...this._points, coord]);
+        const currentPoints = [...this._points, [e.lngLat.lng, e.lngLat.lat]];
+        this._updateLine(currentPoints);
     }
 
     _updateLine(coordinates) {
@@ -181,310 +181,223 @@ class ProfileControl {
             properties: {},
             geometry: {
                 type: 'LineString',
-                coordinates: coordinates
+                coordinates
             }
         });
     }
 
-    async _createProfile() {
-        this._panel.style.display = 'block';
-
-        const line = turf.lineString(this._points);
-        const length = turf.length(line, {units: 'kilometers'});
-        const steps = 100;
-        const points = [];
-
-        for (let i = 0; i <= steps; i++) {
-            const point = turf.along(line, (length * i) / steps, {units: 'kilometers'});
-            points.push(point);
+    async _generateProfile() {
+        if (!this._points || this._points.length !== 2) {
+            console.warn('Servono esattamente 2 punti per generare il profilo');
+            return;
         }
 
-        // Usa Promise.all per ottenere le elevazioni in parallelo
-        const data = await Promise.all(points.map(async (point, i) => {
-            const coordinates = point.geometry.coordinates;
+        try {
+            const line = turf.lineString(this._points);
+            const length = turf.length(line, { units: 'kilometers' });
             
-            try {
-                // Ottieni i valori del pixel dal DEM
-                const [elevation] = await locationValues(
-                    this._demUrl, 
-                    {
-                        latitude: coordinates[1], 
-                        longitude: coordinates[0]
-                    }, 
-                    this._map.getZoom()
-                );
-
-                // Query features per ogni punto
-                const features = this._map.queryRenderedFeatures(
-                    this._map.project(coordinates), 
-                    { layers: ['geologiaVDA'] }
-                );
-
-                return {
-                    distance: (length * i) / steps,
-                    elevation: elevation || 0, // Usa il valore del pixel come elevazione
-                    geology: features.length > 0 ? features[0].properties.Sigla : 'N/A'
-                };
-            } catch (error) {
-                console.error('Elevation query failed:', error);
-                return {
-                    distance: (length * i) / steps,
-                    elevation: 0,
-                    geology: 'N/A'
-                };
+            // Se la linea è troppo corta, non generiamo il profilo
+            if (length < 0.001) {
+                console.warn('La linea è troppo corta per generare un profilo');
+                return;
             }
-        }));
 
-        //console.log('Elevation Data:', data);
+            const steps = 100;
+            const points = [];
 
-        this._createChart(data);
-    }
-
-    _getGeologyColors(formations) {
-        // Oggetto per memorizzare i colori assegnati
-        const colorMap = {
-            'N/A': '#cccccc'
-        };
-    
-        // Funzione per generare un colore HSL casuale ma gradevole
-        const generateColor = (formation) => {
-            // Usa la stringa della formazione per generare un numero deterministico
-            let hash = 0;
-            for (let i = 0; i < formation.length; i++) {
-                hash = formation.charCodeAt(i) + ((hash << 5) - hash);
+            for (let i = 0; i <= steps; i++) {
+                const point = turf.along(line, (length * i) / steps, { units: 'kilometers' });
+                points.push(point);
             }
-            
-            // Genera HSL con:
-            // - Hue: valore completo 0-360
-            // - Saturation: 60-80% per colori vivaci ma non troppo
-            // - Lightness: 35-65% per colori né troppo scuri né troppo chiari
-            const hue = hash % 360;
-            const saturation = 60 + (hash % 20); // 60-80%
-            const lightness = 35 + (hash % 30);  // 35-65%
-            
-            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-        };
-    
-        // Assegna colori a tutte le formazioni
-        formations.forEach(formation => {
-            if (!colorMap[formation]) {
-                colorMap[formation] = generateColor(formation);
-            }
-        });
-    
-        return colorMap;
-    }
 
-    _createChart(data) {
-        const content = document.getElementById('profile-content');
-        content.innerHTML = '';
-
-        // Create header with controls
-        const header = document.createElement('div');
-        header.style.display = 'flex';
-        header.style.justifyContent = 'space-between';
-        header.style.alignItems = 'center';
-        header.style.marginBottom = '10px';
-
-        // Add title
-        const title = document.createElement('h3');
-        title.textContent = 'Profilo Topografico';
-        title.style.margin = '0';
-        header.appendChild(title);
-
-        // Add close button
-        const closeButton = document.createElement('button');
-        closeButton.innerHTML = '×';
-        closeButton.style.border = 'none';
-        closeButton.style.background = 'none';
-        closeButton.style.fontSize = '24px';
-        closeButton.style.cursor = 'pointer';
-        closeButton.style.padding = '5px 10px';
-        closeButton.onclick = () => {
-            this._panel.style.display = 'none';
-            this._updateLine([]); // Clear the line from the map
-            if (this._chartRoot) {
-                this._chartRoot.unmount();
-            }
-        };
-        header.appendChild(closeButton);
-
-        content.appendChild(header);
-
-        // Create chart container
-        const chartContainer = document.createElement('div');
-        chartContainer.style.width = '100%';
-        chartContainer.style.height = 'calc(100% - 50px)';
-        chartContainer.style.minWidth = '200px';
-        chartContainer.style.minHeight = '200px';
-        content.appendChild(chartContainer);
-
-        // Create the chart component
-        const ChartComponent = () => {
-            const elevations = data.map(d => d.elevation);
-            const minElevation = Math.floor(Math.min(...elevations));
-            const maxElevation = Math.ceil(Math.max(...elevations));
-            
-            // Calculate a nice interval for the ticks
-            const range = maxElevation - minElevation;
-            const roughInterval = range / 4; // We want 5 ticks (4 intervals)
-            
-            // Round the interval to a nice number
-            const magnitude = Math.pow(10, Math.floor(Math.log10(roughInterval)));
-            const niceInterval = Math.ceil(roughInterval / magnitude) * magnitude;
-            
-            // Calculate the adjusted min and max for nice round numbers
-            const adjustedMin = Math.floor(minElevation / niceInterval) * niceInterval;
-            const adjustedMax = Math.ceil(maxElevation / niceInterval) * niceInterval;
-            
-            // Generate tick values
-            const ticks = [];
-            for (let tick = adjustedMin; tick <= adjustedMax; tick += niceInterval) {
-                ticks.push(tick);
-            }
-        
-            return (
-                <ResponsiveContainer width="100%" height="100%">
-                    <LineChart
-                        data={data}
-                        margin={{ top: 10, right: 10, left: 30, bottom: 30 }}
-                        onMouseMove={this._handleChartHover.bind(this)}
-                        onMouseLeave={this._handleChartLeave.bind(this)}
-                    >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.5} stroke="#ccc"/>
-                        <XAxis 
-                            dataKey="distance"
-                            padding={{ left: 20, right: 20 }} 
-                            label={{
-                                value: 'Distanza (km)',
-                                position: 'bottom',
-                                offset: 20
-                            }}
-                            tickFormatter={(value) => value.toFixed(1)}
-                            // Rimuovi interval
-                            domain={[0, 'dataMax']} // Aggiungi dominio esplicito
-                            ticks={data  // Definisci i tick manualmente
-                                .filter((_, i) => i % Math.ceil(data.length / 10) === 0)
-                                .map(d => d.distance)}
-                        />
-                        <YAxis
-                            dataKey="elevation"
-                            domain={[adjustedMin, adjustedMax]}
-                            ticks={ticks}
-                            label={{ 
-                                value: 'Elevazione (m)', 
-                                angle: -90, 
-                                position: 'insideLeft',
-                                offset: -20,
-                                style: {
-                                    textAnchor: 'middle'
-                                }
-                            }}
-                            tickFormatter={(value) => value.toFixed(0)}
-                        />
-                        <Tooltip content={this._customTooltip} />
-                        {this._createGeologySegments(data, this._getGeologyColors([...new Set(data.map(d => d.geology))]))}
-                        <Legend 
-                            verticalAlign="top"
-                            align="center"
-                            height={36}
-                        />
-                    </LineChart>
-                </ResponsiveContainer>
-            );
-        };
-    
-        this._chartRoot = createRoot(chartContainer);
-        this._chartRoot.render(<ChartComponent />);
-
-        // Store the line coordinates for later use
-        this._lineString = turf.lineString(this._points);
-
-        // Initialize marker if it doesn't exist
-        if (!this._marker) {
-            this._marker = new maplibregl.Marker({
-                color: '#33b5e5',
-                scale: 0.8
-            }).setLngLat([0, 0]);
-        }
-    }
-
-    _handleChartHover(e) {
-        if (!e || !e.activePayload || !e.activePayload[0]) return;
-
-        const { distance } = e.activePayload[0].payload;
-        const point = turf.along(this._lineString, distance, { units: 'kilometers' });
-        const coordinates = point.geometry.coordinates;
-
-        // Update marker position and add to map if not already added
-        this._marker
-            .setLngLat(coordinates)
-            .addTo(this._map);
-    }
-
-    _handleChartLeave() {
-        // Remove marker when mouse leaves the chart
-        if (this._marker) {
-            this._marker.remove();
-        }
-    }
-
-    _createGeologySegments(data, colors) {
-        // Creiamo una singola Line per ogni diversa formazione geologica
-        const uniqueFormations = [...new Set(data.map(d => d.geology))];
-        
-        return (
-            <>
-                {uniqueFormations.map(formation => {
-                    // Filtriamo i dati per questa formazione
-                    const formationData = data.map(d => ({
-                        ...d,
-                        elevation: d.geology === formation ? d.elevation : null
-                    }));
-    
-                    return (
-                        <Line
-                            key={formation}
-                            type="monotone"
-                            dataKey="elevation"
-                            data={formationData}
-                            stroke={colors[formation]}
-                            strokeWidth={3}
-                            dot={false}
-                            name={formation}
-                            isAnimationActive={false}
-                            connectNulls={true}
-                        />
+            const data = await Promise.all(
+                points.map(async (point, i) => {
+                    const coordinates = point.geometry.coordinates;
+                    
+                    const [elevation] = await locationValues(
+                        this._demUrl,
+                        {
+                            latitude: coordinates[1],
+                            longitude: coordinates[0]
+                        },
+                        this._map.getZoom()
                     );
-                })}
-            </>
-        );
+
+                    const features = this._map.queryRenderedFeatures(
+                        this._map.project(coordinates),
+                        { layers: ['geologiaVDA'] }
+                    );
+
+                    return {
+                        distance: (length * i) / steps,
+                        elevation: elevation || 0,
+                        geology: features.length > 0 ? features[0].properties.Sigla : 'N/A',
+                        formation: features.length > 0 ? features[0].properties.Name : 'N/A'
+                    };
+                })
+            );
+
+            this._renderChart(data);
+            this._panel.style.display = 'block';
+        } catch (error) {
+            console.error('Error generating profile:', error);
+        }
     }
 
-    _customTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            const data = payload[0].payload;
+    _renderChart(data) {
+        const ProfileChart = () => {
+            const totalDistance = data[data.length - 1].distance;
+            const elevations = data.map(d => d.elevation);
+            const minElevation = Math.min(...elevations);
+            const maxElevation = Math.max(...elevations);
+            const elevationGain = elevations.reduce((gain, curr, i) => {
+                if (i === 0) return 0;
+                const diff = curr - elevations[i - 1];
+                return gain + (diff > 0 ? diff : 0);
+            }, 0);
+
+            const handleMouseMove = (e) => {
+                if (!e || !e.activePayload || !e.activePayload[0]) return;
+                
+                const { distance } = e.activePayload[0].payload;
+                
+                if (!this._points || this._points.length < 2) return;
+                const line = turf.lineString(this._points);
+                const point = turf.along(line, distance, { units: 'kilometers' });
+                this._marker.setLngLat(point.geometry.coordinates).addTo(this._map);
+            };
+
             return (
-                <div style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    padding: '10px',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px'
-                }}>
-                    <p style={{ margin: '0 0 5px 0' }}>
-                        <strong>Distanza:</strong> {label.toFixed(2)} km
-                    </p>
-                    <p style={{ margin: '0 0 5px 0' }}>
-                        <strong>Elevazione:</strong> {Math.round(data.elevation)}m
-                    </p>
-                    <p style={{ margin: 0 }}>
-                    <strong>Formazione:</strong> {data.geology}
-                    </p>
+                <div style={{ width: '100%', height: '100%' }}>
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '8px'
+                    }}>
+                        <div>
+                            <h3 style={{ 
+                                margin: '0 0 4px 0',
+                                fontSize: '16px',
+                                fontWeight: '500'
+                            }}>Profilo Altimetrico</h3>
+                            <div style={{ 
+                                fontSize: '12px',
+                                color: '#666'
+                            }}>
+                                Distanza: {totalDistance.toFixed(2)} km • 
+                                Min: {Math.round(minElevation)} m • 
+                                Max: {Math.round(maxElevation)} m • 
+                                Dislivello: {Math.round(elevationGain)} m
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                this._panel.style.display = 'none';
+                                this._updateLine([]);
+                                this._points = [];
+                                this._marker.remove();
+                            }}
+                            style={{
+                                border: 'none',
+                                background: 'none',
+                                fontSize: '20px',
+                                cursor: 'pointer',
+                                padding: '4px',
+                                color: '#666',
+                                lineHeight: 1
+                            }}
+                        >
+                            ×
+                        </button>
+                    </div>
+                    <div style={{ height: 'calc(100% - 40px)' }}>
+                        <ResponsiveContainer>
+                            <AreaChart
+                                data={data}
+                                margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
+                                onMouseMove={handleMouseMove}
+                                onMouseLeave={() => this._marker.remove()}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" />
+                                <XAxis
+                                    dataKey="distance"
+                                    // label={{ 
+                                    //     value: 'Distanza (km)',
+                                    //     position: 'bottom',
+                                    //     offset: -5,
+                                    //     style: { fontSize: '10px', fill: '#666' }
+                                    // }}
+                                    tick={{ fontSize: 10 }}
+                                    tickFormatter={val => val.toFixed(1)}
+                                    interval={Math.ceil(data.length / 8)}
+                                />
+                                <YAxis
+                                    dataKey="elevation"
+                                    domain={['auto', 'auto']}
+                                    // label={{
+                                    //     value: 'Quota (m)',
+                                    //     angle: -90,
+                                    //     position: 'insideLeft',
+                                    //     offset: 20,
+                                    //     style: { fontSize: '10px', fill: '#666' }
+                                    // }}
+                                    tick={{ fontSize: 10 }}
+                                />
+                                <Tooltip
+                                    content={({ active, payload, label }) => {
+                                        if (!active || !payload?.length) return null;
+                                        const data = payload[0].payload;
+                                        return (
+                                            <div style={{
+                                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                                padding: '8px',
+                                                border: '1px solid #ddd',
+                                                borderRadius: '4px',
+                                                fontSize: '12px'
+                                            }}>
+                                                <div>Distanza: {label.toFixed(2)} km</div>
+                                                <div>Quota: {Math.round(data.elevation)} m</div>
+                                                <div style={{ 
+                                                    borderTop: '1px solid #eee',
+                                                    marginTop: '4px',
+                                                    paddingTop: '4px'
+                                                }}>
+                                                    <div>Formazione: {data.geology}</div>
+                                                    <div style={{ 
+                                                        fontSize: '11px',
+                                                        color: '#666',
+                                                        fontStyle: 'italic'
+                                                    }}>
+                                                        {data.formation}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="elevation"
+                                    stroke="#33b5e5"
+                                    fill="#33b5e5"
+                                    fillOpacity={0.2}
+                                    strokeWidth={2}
+                                    dot={false}
+                                    isAnimationActive={false}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
             );
+        };
+
+        if (!this._chartRoot) {
+            this._chartRoot = createRoot(this._panel);
         }
-        return null;
-    };
+        this._chartRoot.render(<ProfileChart />);
+    }
 
     onRemove() {
         if (this._container.parentNode) {
@@ -506,12 +419,10 @@ class ProfileControl {
         if (this._chartRoot) {
             this._chartRoot.unmount();
         }
-        this._map = null;
-        // Also remove the marker
         if (this._marker) {
             this._marker.remove();
-            this._marker = null;
         }
+        this._map = null;
     }
 }
 
