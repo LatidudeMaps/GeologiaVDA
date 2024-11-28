@@ -1,4 +1,4 @@
-![preview](https://latidudemaps.github.io/GeologiaVDA/images/vda_geotour.png)
+![preview](https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/images/vda_geotour.png)
 **[Go to the WebApp](https://latidudemaps.github.io/GeologiaVDA/)**
 
 DISCLAIMER: all of this project is based on data coming from this recent **[scientific paper](https://www.tandfonline.com/doi/full/10.1080/17445647.2023.2257729)**, published in Sept. 2023 (Palladino, G., Prosser, G., Olita, F., Avagliano, D., Dello Iacovo, B., Giano, S. I., … Grimaldi, S.)
