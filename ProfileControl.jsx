@@ -58,6 +58,23 @@ class ProfileControl {
         this._panel.style.zIndex = '1000';
         this._panel.style.fontFamily = 'Rubik';
 
+        // Add responsive styles
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @media (max-width: 600px) {
+                .recharts-wrapper {
+                    font-size: 11px;
+                }
+                .recharts-cartesian-grid line {
+                    stroke: rgba(0, 0, 0, 0.2);
+                }
+                .recharts-cartesian-axis-tick-value {
+                    font-size: 10px;
+                }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
         // Add click handler for toggle button
         this._button.addEventListener('click', () => {
             this._toggleDrawing();
@@ -98,6 +115,12 @@ class ProfileControl {
             scale: 0.8
         });
 
+        // Add resize listener
+        window.addEventListener('resize', () => this._updatePanelSize());
+        
+        // Initial size update
+        this._updatePanelSize();
+
         this._container.appendChild(this._button);
         document.body.appendChild(this._panel);
 
@@ -122,6 +145,21 @@ class ProfileControl {
                 }
             `;
             document.head.appendChild(style);
+        }
+    }
+
+    _updatePanelSize() {
+        const isMobile = window.innerWidth <= 600;
+        if (isMobile) {
+            this._panel.style.width = 'calc(100vw - 20px)';
+            this._panel.style.height = '350px';
+            this._panel.style.padding = '10px';
+            this._panel.style.bottom = '5px';
+        } else {
+            this._panel.style.width = '600px';
+            this._panel.style.height = '300px';
+            this._panel.style.padding = '5px';
+            this._panel.style.bottom = '10px';
         }
     }
 
@@ -246,6 +284,7 @@ class ProfileControl {
 
     _renderChart(data) {
         const ProfileChart = () => {
+            const isMobile = window.innerWidth <= 600;
             const totalDistance = data[data.length - 1].distance;
             const elevations = data.map(d => d.elevation);
             const minElevation = Math.min(...elevations);
@@ -268,21 +307,26 @@ class ProfileControl {
             };
 
             return (
-                <div style={{ width: '100%', height: '100%' }}>
+                <div style={{ width: '100%', height: '100%', padding: isMobile ? '5px 0' : '5px' }}>
                     <div style={{ 
                         display: 'flex', 
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        marginBottom: '8px'
+                        marginBottom: '8px',
+                        flexWrap: isMobile ? 'wrap' : 'nowrap'
                     }}>
-                        <div>
+                        <div style={{ 
+                            flex: 1,
+                            minWidth: isMobile ? '100%' : 'auto',
+                            fontSize: isMobile ? '12px' : '14px'
+                        }}>
                             <h3 style={{ 
                                 margin: '0 0 4px 0',
-                                fontSize: '16px',
+                                fontSize: isMobile ? '14px' : '16px',
                                 fontWeight: '500'
                             }}>Elevation profile with geological formations info</h3>
                             <div style={{ 
-                                fontSize: '10px',
+                                fontSize: isMobile ? '10px' : '11px',
                                 color: '#666'
                             }}>
                                 Distance: {totalDistance.toFixed(2)} km • 
@@ -305,44 +349,37 @@ class ProfileControl {
                                 cursor: 'pointer',
                                 padding: '4px',
                                 color: '#666',
-                                lineHeight: 1
+                                lineHeight: 1,
+                                marginLeft: isMobile ? '0' : '8px'
                             }}
                         >
                             ×
                         </button>
                     </div>
-                    <div style={{ height: 'calc(100% - 40px)' }}>
+                    <div style={{ height: isMobile ? 'calc(100% - 60px)' : 'calc(100% - 40px)' }}>
                         <ResponsiveContainer>
                             <AreaChart
                                 data={data}
-                                margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
+                                margin={{ 
+                                    top: 5, 
+                                    right: isMobile ? 5 : 10, 
+                                    left: isMobile ? -15 : -20, 
+                                    bottom: isMobile ? 0 : 0 
+                                }}
                                 onMouseMove={handleMouseMove}
                                 onMouseLeave={() => this._marker.remove()}
                             >
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.1)" />
                                 <XAxis
                                     dataKey="distance"
-                                    // label={{ 
-                                    //     value: 'Distanza (km)',
-                                    //     position: 'bottom',
-                                    //     offset: -5,
-                                    //     style: { fontSize: '10px', fill: '#666' }
-                                    // }}
-                                    tick={{ fontSize: 10 }}
+                                    tick={{ fontSize: isMobile ? 9 : 10 }}
                                     tickFormatter={val => val.toFixed(1)}
-                                    interval={Math.ceil(data.length / 8)}
+                                    interval={Math.ceil(data.length / (isMobile ? 6 : 8))}
                                 />
                                 <YAxis
                                     dataKey="elevation"
                                     domain={['auto', 'auto']}
-                                    // label={{
-                                    //     value: 'Quota (m)',
-                                    //     angle: -90,
-                                    //     position: 'insideLeft',
-                                    //     offset: 20,
-                                    //     style: { fontSize: '10px', fill: '#666' }
-                                    // }}
-                                    tick={{ fontSize: 10 }}
+                                    tick={{ fontSize: isMobile ? 9 : 10 }}
                                 />
                                 <Tooltip
                                     content={({ active, payload, label }) => {
@@ -351,10 +388,10 @@ class ProfileControl {
                                         return (
                                             <div style={{
                                                 backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                                padding: '8px',
+                                                padding: isMobile ? '6px' : '8px',
                                                 border: '1px solid #ddd',
                                                 borderRadius: '4px',
-                                                fontSize: '12px'
+                                                fontSize: isMobile ? '11px' : '12px'
                                             }}>
                                                 <div>Distance: {label.toFixed(2)} km</div>
                                                 <div>Elevation: {Math.round(data.elevation)} m</div>
@@ -365,7 +402,7 @@ class ProfileControl {
                                                 }}>
                                                     <div>Formation: {data.geology}</div>
                                                     <div style={{ 
-                                                        fontSize: '11px',
+                                                        fontSize: isMobile ? '10px' : '11px',
                                                         color: '#666',
                                                         fontStyle: 'italic'
                                                     }}>

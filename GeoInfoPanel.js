@@ -7,7 +7,7 @@ class GeoInfoPanel {
         this._currentFeature = null;
         this._panel = null;
         this._button = null;
-        this._isActive = false;  // Nuovo stato per tracciare se il pannello è attivo
+        this._isActive = false;
     }
 
     onAdd(map) {
@@ -33,20 +33,22 @@ class GeoInfoPanel {
         this._panel.style.borderRadius = '8px';
         this._panel.style.boxShadow = '0 14px 20px rgba(0, 0, 0, 0.2)';
         this._panel.style.width = '600px';
-        this._panel.style.maxHeight = '500px';
+        this._panel.style.maxHeight = '500px'; // Valore originale
         this._panel.style.overflowY = 'auto';
         this._panel.style.position = 'fixed';
-        this._panel.style.left = '10px';
+        this._panel.style.left = '10px'; // Valore originale
         this._panel.style.bottom = '10px';
         this._panel.style.display = 'none';
         this._panel.style.zIndex = '1';
         this._panel.style.fontFamily = 'Rubik';
 
-        // Aggiunge stili per la scrollbar personalizzata
-        this._panel.style.scrollbarWidth = 'thin';
-        this._panel.style.scrollbarColor = 'rgba(0, 0, 0, 0.3) transparent';
+        // Aggiungi listener per il resize della finestra
+        window.addEventListener('resize', () => this._updatePanelSize());
+        
+        // Inizializza le dimensioni
+        this._updatePanelSize();
 
-        // Aggiungi stili per la scrollbar su WebKit (Chrome, Safari, etc.)
+        // Aggiungi stili per la scrollbar personalizzata
         const styleSheet = document.createElement('style');
         styleSheet.textContent = `
             #geo-info-content::-webkit-scrollbar {
@@ -59,13 +61,20 @@ class GeoInfoPanel {
                 background-color: rgba(0, 0, 0, 0.3);
                 border-radius: 3px;
             }
+            #geo-info-content {
+                font-size: 14px;
+            }
+            @media (max-width: 600px) {
+                #geo-info-content {
+                    font-size: 13px;
+                }
+            }
         `;
         document.head.appendChild(styleSheet);
 
         // Create content container
         const content = document.createElement('div');
         content.id = 'geo-info-content';
-        content.style.fontSize = '14px';
         this._panel.appendChild(content);
 
         // Add click handler for toggle button
@@ -78,15 +87,6 @@ class GeoInfoPanel {
         
         // Append panel directly to body
         document.body.appendChild(this._panel);
-
-        // Set up event listeners for map interactions
-        map.on('click', 'geologiaVDA', this._handleClick.bind(this));
-        
-        // Add click handler for toggle button
-        this._button.addEventListener('click', () => {
-            this._isActive = !this._isActive;  // Toggle lo stato attivo
-            this._togglePanel();
-        });
 
         // Set up event listeners for map interactions
         map.on('click', 'geologiaVDA', this._handleClick.bind(this));
@@ -116,6 +116,8 @@ class GeoInfoPanel {
     }
 
     _togglePanel() {
+        this._isActive = !this._isActive;
+        
         if (this._isActive) {
             this._panel.style.display = 'block';
             this._button.classList.add('active');
@@ -129,9 +131,23 @@ class GeoInfoPanel {
         if (e.features.length > 0) {
             const feature = e.features[0];
             this._updateContent(feature.properties);
-            if (this._isActive) {  // Mostra il contenuto solo se il pannello è attivo
+            if (this._isActive) {
                 this._panel.style.display = 'block';
             }
+        }
+    }
+
+    _updatePanelSize() {
+        if (window.innerWidth <= 600) {
+            this._panel.style.width = 'calc(100vw - 40px)';
+            this._panel.style.maxHeight = '20vh';
+            this._panel.style.left = '50%';
+            this._panel.style.transform = 'translateX(-50%)';
+        } else {
+            this._panel.style.width = '600px';
+            this._panel.style.maxHeight = '500px';
+            this._panel.style.left = '10px';
+            this._panel.style.transform = 'none';
         }
     }
 
