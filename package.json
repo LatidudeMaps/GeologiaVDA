@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "gh-pages": "^6.2.0",
     "maplibre-gl": "^4.7.1",
     "pmtiles": "^3.2.1",
@@ -26,7 +27,7 @@
     "@geomatico/maplibre-cog-protocol": "^0.3.1",
     "@turf/mask": "^7.1.0",
     "@turf/turf": "^7.1.0",
-    "lucide-react": "^0.460.0",
+    "lucide-react": "^0.462.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.13.3"
