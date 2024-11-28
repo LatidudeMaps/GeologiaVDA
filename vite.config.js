@@ -27,7 +27,11 @@ export default defineConfig({
             './CopyrightControl.js',
             './ProfileControl.jsx'
           ]
-        }
+        },
+        // Aggiungi configurazione per nomi file più corti
+        assetFileNames: 'assets/[name]-[hash:8][extname]',
+        chunkFileNames: 'assets/[name]-[hash:8].js',
+        entryFileNames: 'assets/[name]-[hash:8].js'
       }
     },
     chunkSizeWarningLimit: 1000
