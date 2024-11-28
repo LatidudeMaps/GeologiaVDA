@@ -280,15 +280,15 @@ class ProfileControl {
                                 margin: '0 0 4px 0',
                                 fontSize: '16px',
                                 fontWeight: '500'
-                            }}>Profilo Altimetrico</h3>
+                            }}>Elevation profile with geological formations info</h3>
                             <div style={{ 
-                                fontSize: '12px',
+                                fontSize: '10px',
                                 color: '#666'
                             }}>
-                                Distanza: {totalDistance.toFixed(2)} km • 
-                                Min: {Math.round(minElevation)} m • 
-                                Max: {Math.round(maxElevation)} m • 
-                                Dislivello: {Math.round(elevationGain)} m
+                                Distance: {totalDistance.toFixed(2)} km • 
+                                Min elev.: {Math.round(minElevation)} m • 
+                                Max elev.: {Math.round(maxElevation)} m • 
+                                Elevation Difference: {Math.round(elevationGain)} m
                             </div>
                         </div>
                         <button
@@ -356,14 +356,14 @@ class ProfileControl {
                                                 borderRadius: '4px',
                                                 fontSize: '12px'
                                             }}>
-                                                <div>Distanza: {label.toFixed(2)} km</div>
-                                                <div>Quota: {Math.round(data.elevation)} m</div>
+                                                <div>Distance: {label.toFixed(2)} km</div>
+                                                <div>Elevation: {Math.round(data.elevation)} m</div>
                                                 <div style={{ 
                                                     borderTop: '1px solid #eee',
                                                     marginTop: '4px',
                                                     paddingTop: '4px'
                                                 }}>
-                                                    <div>Formazione: {data.geology}</div>
+                                                    <div>Formation: {data.geology}</div>
                                                     <div style={{ 
                                                         fontSize: '11px',
                                                         color: '#666',
