@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: '/GeologiaVDA/',
+  base: '/GeologiaVDA/',  // Assicurati che questo corrisponda esattamente al nome del repository
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -28,12 +28,12 @@ export default defineConfig({
             './ProfileControl.jsx'
           ]
         },
-        // Aggiungi configurazione per nomi file più corti
-        assetFileNames: 'assets/[name]-[hash:8][extname]',
-        chunkFileNames: 'assets/[name]-[hash:8].js',
-        entryFileNames: 'assets/[name]-[hash:8].js'
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          return `assets/${info[0]}-[hash:8].${ext}`;
+        }
       }
-    },
-    chunkSizeWarningLimit: 1000
+    }
   }
 })
