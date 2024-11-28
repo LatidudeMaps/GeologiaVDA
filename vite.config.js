@@ -1,16 +1,35 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   base: '/GeologiaVDA/',
-  plugins: [react()],
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
       output: {
-        manualChunks: undefined
+        manualChunks: {
+          vendor: [
+            'react',
+            'react-dom',
+            'maplibre-gl',
+            'pmtiles',
+            '@geomatico/maplibre-cog-protocol',
+            '@turf/turf',
+            'recharts'
+          ],
+          controls: [
+            './LayerControl.js',
+            './MapInfo.js',
+            './GeoInfoPanel.js',
+            './MinimapControls.js',
+            './TerrainControls.js',
+            './SettingsControl.js',
+            './CopyrightControl.js',
+            './ProfileControl.jsx'
+          ]
+        }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
   }
 })
