@@ -171,7 +171,7 @@
             "type": "fill",
             "source": "mask-source",
             "paint": {
-              "fill-color": "#ffffff",
+              "fill-color": "#272a35",
               "fill-opacity": 1
             },
             "layout": {
@@ -263,5 +263,12 @@
         "source": "terrainSource",
         "exaggeration": 1.5
     },
-    "sky": {}
+    "sky": {
+        "sky-color": "#272a35",
+        "sky-horizon-blend": 1,
+        "horizon-color": "#272a35",
+        "horizon-fog-blend": 1,
+        "fog-color": "#272a35",
+        "fog-ground-blend": 1
+    }
 }
