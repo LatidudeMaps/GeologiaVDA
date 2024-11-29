@@ -229,6 +229,18 @@
                     10, 1
                 ]
             }
+        },
+        {
+            "id": "mask",
+            "type": "fill",
+            "source": "mask-source",
+            "paint": {
+              "fill-color": "#ffffff",
+              "fill-opacity": 1
+            },
+            "layout": {
+              "visibility": "visible"
+            }
         }
     ],
     "terrain": {
