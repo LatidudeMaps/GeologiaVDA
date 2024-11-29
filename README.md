@@ -22,4 +22,4 @@ The project leverages advanced web technologies: primarly, I chose to use extens
 This platform holds significant educational and touristic potential, fostering an understanding of the region and highlighting geology as a cultural and scientific resource. Additionally, it can be integrated into research projects or serve as a support tool for territorial planning studies.
 
 ## Future Plans
-I plan to enhance this web map application with more tools, functionalities and data going ahead, so stay up to date and feel free to contact me for feedbacks and possible improvements.
+I plan to enhance this web map application with more tools, functionalities and data going ahead, so stay up to date and feel free to contact me for feedbacks and possible improvements..
