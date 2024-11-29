@@ -203,7 +203,7 @@
                     ["number-format", ["get", "elevation"], {"locale": "it-IT"}],
                     "m"
                 ],
-                "text-font": ["Roboto Italic"],
+                "text-font": ["Roboto Bold Italic"],
                 "text-size": [
                     "interpolate",
                     ["linear"],
@@ -220,7 +220,9 @@
                 "text-max-angle": 45
             },
             "paint": {
-                "text-color": "#ffffff",
+                "text-color": "#8B4513",
+                "text-halo-color": "rgba(255, 255, 255, 0.7)",
+                "text-halo-width": 1,
                 "text-opacity": [
                     "interpolate",
                     ["linear"],
