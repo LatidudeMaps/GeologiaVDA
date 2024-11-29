@@ -19,7 +19,7 @@ class GeoInfoPanel {
         this._button = document.createElement('button');
         this._button.type = 'button';
         this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-inspect';
-        this._button.setAttribute('aria-label', 'Toggle Geology Info');
+        this._button.setAttribute('title', 'Show geological information');
 
         // Add CSS for the inspect icon
         this._addInspectStyles();

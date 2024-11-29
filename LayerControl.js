@@ -16,7 +16,7 @@ class LayerControl {
         this._button = document.createElement('button');
         this._button.type = 'button';
         this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-layers';
-        this._button.setAttribute('aria-label', 'Toggle Layers');
+        this._button.setAttribute('title', 'Toggle layer visibility');
 
         // Add CSS for the layers icon
         this._addLayersStyles();

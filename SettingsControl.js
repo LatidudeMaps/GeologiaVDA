@@ -2,6 +2,7 @@ import LayerControl from './LayerControl';
 import GeoInfoPanel from './GeoInfoPanel';
 import MapInfoControl from './MapInfo';
 import ProfileControl from './ProfileControl.jsx';
+import GeologyOpacityControl from './GeologyOpacityControl';
 import * as maplibregl from 'maplibre-gl';
 
 class SettingsControl {
@@ -27,7 +28,7 @@ class SettingsControl {
         this._button = document.createElement('button');
         this._button.type = 'button';
         this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-settings';
-        this._button.setAttribute('aria-label', 'Toggle Settings Controls');
+        this._button.setAttribute('title', 'Show all commands');
         
         // Add settings icon and animation styles
         this._addStyles();
@@ -131,6 +132,7 @@ class SettingsControl {
         // Add the controls we want to wrap
         const controls = [
             { instance: new LayerControl(), className: 'maplibregl-ctrl-layers' },
+            { instance: new GeologyOpacityControl(), className: 'maplibregl-ctrl-opacity' },
             { instance: new GeoInfoPanel(), className: 'maplibregl-ctrl-inspect' },
             { instance: new MapInfoControl(), className: 'maplibregl-ctrl-zoom-info' },
             { instance: new ProfileControl(), className: 'maplibregl-ctrl-profile' },

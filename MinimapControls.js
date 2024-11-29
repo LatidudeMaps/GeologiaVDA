@@ -52,6 +52,7 @@ class MinimapControl {
         toggleButton.style.justifyContent = 'center';
         toggleButton.style.zIndex = '1';
         toggleButton.style.transition = 'background-color 0.2s';
+        toggleButton.setAttribute('title', 'Toggle overview map');
 
         // Define both icons for minimize and maximize
         const minimizeIcon = `

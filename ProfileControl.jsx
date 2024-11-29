@@ -35,7 +35,7 @@ class ProfileControl {
         this._button = document.createElement('button');
         this._button.type = 'button';
         this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-profile';
-        this._button.setAttribute('aria-label', 'Create Profile');
+        this._button.setAttribute('title', 'Create elevation profile');
 
         // Add CSS for the profile icon
         this._addProfileStyles();

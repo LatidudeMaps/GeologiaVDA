@@ -15,7 +15,7 @@ class MapInfoControl {
         this._button = document.createElement('button');
         this._button.type = 'button';
         this._button.className = 'maplibregl-ctrl-icon maplibregl-ctrl-zoom-info';
-        this._button.setAttribute('aria-label', 'Toggle Map Info');
+        this._button.setAttribute('title', 'Show map coordinates and bounds');
 
         // Add CSS for the zoom info icon
         this._addZoomInfoStyles();
