@@ -25,7 +25,7 @@ class MinimapControl {
         minimapWrapper.style.height = this._height + 'px';
         minimapWrapper.style.position = 'relative';
         minimapWrapper.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-        minimapWrapper.style.transformOrigin = 'top left'; // Set transform origin to top-left
+        minimapWrapper.style.transformOrigin = 'top left';
         minimapWrapper.style.border = '2px solid rgba(255, 255, 255, 0.5)';
         minimapWrapper.style.borderRadius = '8px';
         minimapWrapper.style.overflow = 'hidden';
@@ -103,41 +103,69 @@ class MinimapControl {
 
     _toggleMinimap(wrapper, button, minimizeIcon, maximizeIcon) {
         if (this._isVisible) {
-            // Hide minimap with animation
             wrapper.style.transform = 'scale(0)';
             wrapper.style.opacity = '0';
-            button.innerHTML = maximizeIcon; // Switch to maximize icon
+            button.innerHTML = maximizeIcon;
             this._isVisible = false;
         } else {
-            // Show minimap with animation
             wrapper.style.transform = 'scale(1)';
             wrapper.style.opacity = '1';
-            button.innerHTML = minimizeIcon; // Switch to minimize icon
+            button.innerHTML = minimizeIcon;
             this._isVisible = true;
         }
     }
 
     _initMinimap(container) {
-        // Clone the main map's style
-        const mainStyle = this._mainMap.getStyle();
+        // Create a separate style for the minimap with OpenTopoMap tiles and GeoJSON
         const minimapStyle = {
             version: 8,
-            sources: {},
-            layers: [],
-            glyphs: mainStyle.glyphs
+            sources: {
+                'opentopo': {
+                    type: 'raster',
+                    tiles: [
+                        'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+                        'https://b.tile.opentopomap.org/{z}/{x}/{y}.png',
+                        'https://c.tile.opentopomap.org/{z}/{x}/{y}.png'
+                    ],
+                    tileSize: 256,
+                    attribution: '© OpenTopoMap (CC-BY-SA)'
+                },
+                'area-source': {
+                    type: 'geojson',
+                    data: 'https://raw.githubusercontent.com/latidudemaps/GeologiaVDA/main/data/mask.geojson'
+                }
+            },
+            layers: [
+                {
+                    id: 'opentopo-tiles',
+                    type: 'raster',
+                    source: 'opentopo',
+                    minzoom: 0,
+                    maxzoom: 17
+                },
+                {
+                    id: 'area-outline',
+                    type: 'line',
+                    source: 'area-source',
+                    paint: {
+                        'line-color': '#FF0000',
+                        'line-width': 2,
+                        'line-opacity': 0.8
+                    }
+                },
+                {
+                    id: 'area-fill',
+                    type: 'fill',
+                    source: 'area-source',
+                    paint: {
+                        'fill-color': '#FF0000',
+                        'fill-opacity': 0.1
+                    }
+                }
+            ]
         };
 
-        // Only copy the basemap source and layer
-        if (mainStyle.sources.basemap) {
-            minimapStyle.sources.basemap = mainStyle.sources.basemap;
-            
-            const basemapLayer = mainStyle.layers.find(layer => layer.id === 'basemap');
-            if (basemapLayer) {
-                minimapStyle.layers.push(basemapLayer);
-            }
-        }
-
-        // Initialize the minimap
+        // Initialize the minimap with the combined style
         this._minimap = new maplibregl.Map({
             container: container,
             style: minimapStyle,
@@ -217,12 +245,12 @@ class MinimapControl {
         );
         
         if (pitch > 70) {
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-            gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            gradient.addColorStop(0, 'rgba(166, 75, 155, 0.8)');
+            gradient.addColorStop(0.2, 'rgba(166, 75, 155, 0)');
+            gradient.addColorStop(1, 'rgba(166, 75, 155, 0)');
         } else {
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
+            gradient.addColorStop(0, 'rgba(166, 75, 155, 0.8)');
+            gradient.addColorStop(1, 'rgba(166, 75, 155, 0.2)');
         }
     
         ctx.beginPath();
@@ -233,7 +261,7 @@ class MinimapControl {
         ctx.closePath();
     
         ctx.fillStyle = gradient;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.strokeStyle = 'rgba(166, 75, 155, 0.8)';
         ctx.lineWidth = 1.5;
         
         ctx.fill();
