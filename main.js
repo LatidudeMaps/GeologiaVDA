@@ -94,7 +94,7 @@ map.on('load', () => {
         'source-layer': 'geoVDA',
         'paint': {
             'fill-color': '#ff0000',
-            'fill-opacity': 0.4
+            'fill-opacity': 0.3
         },
         'filter': ['==', ['get', 'id'], -1]  // Start with no features selected
     });

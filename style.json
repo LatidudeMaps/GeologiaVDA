@@ -89,7 +89,7 @@
             "minzoom": 10,
             "layout": {
                 "text-field": ["get", "Sigla"],
-                "text-font": ["Roboto Regular"],
+                "text-font": ["Roboto Medium"],
                 "text-size": [
                     "interpolate",
                     ["linear"],
@@ -107,7 +107,7 @@
                 "text-anchor": "center"
             },
             "paint": {
-                "text-color": "#000000",
+                "text-color": "#1f1f1f",
                 "text-opacity": [
                     "interpolate",
                     ["linear"],
@@ -135,8 +135,8 @@
             "source-layer": "cities",
             "minzoom": 10,
             "layout": {
-                "text-field": ["get", "loc_sg_top"],
-                "text-font": ["Roboto Bold"],
+                "text-field": ["upcase", ["get", "loc_sg_top"]],
+                "text-font": ["Roboto Black"],
                 "text-size": [
                     "interpolate",
                     ["linear"],
@@ -154,7 +154,9 @@
                 "text-anchor": "center"
             },
             "paint": {
-                "text-color": "white",
+                "text-color": "#1f1f1f",
+                "text-halo-color": "rgba(255, 255, 255, 1)",
+                "text-halo-width": 1,
                 "text-opacity": [
                     "interpolate",
                     ["linear"],
@@ -162,6 +164,18 @@
                     8, 0,
                     10, 1
                 ]
+            }
+        },
+        {
+            "id": "mask",
+            "type": "fill",
+            "source": "mask-source",
+            "paint": {
+              "fill-color": "#ffffff",
+              "fill-opacity": 1
+            },
+            "layout": {
+              "visibility": "visible"
             }
         },
         {
@@ -197,11 +211,23 @@
             "minzoom": 10,
             "layout": {
                 "text-field": [
-                    "concat",
-                    ["get", "name"],
+                    "format",
+                    ["upcase", ["get", "name"]],
+                    {
+                        "text-font": [
+                            "literal",
+                            ["Roboto Black Italic"]
+                        ]
+                    },
                     "\n",
-                    ["number-format", ["get", "elevation"], {"locale": "it-IT"}],
-                    "m"
+                    {},
+                    ["concat", ["get", "elevation"], " m"],
+                    {
+                        "text-font": [
+                            "literal",
+                            ["Roboto Bold Italic"]
+                        ]
+                    }
                 ],
                 "text-font": ["Roboto Bold Italic"],
                 "text-size": [
@@ -221,7 +247,7 @@
             },
             "paint": {
                 "text-color": "#8B4513",
-                "text-halo-color": "rgba(255, 255, 255, 0.7)",
+                "text-halo-color": "rgba(255, 255, 255, 1)",
                 "text-halo-width": 1,
                 "text-opacity": [
                     "interpolate",
@@ -230,18 +256,6 @@
                     9, 0,
                     10, 1
                 ]
-            }
-        },
-        {
-            "id": "mask",
-            "type": "fill",
-            "source": "mask-source",
-            "paint": {
-              "fill-color": "#ffffff",
-              "fill-opacity": 1
-            },
-            "layout": {
-              "visibility": "visible"
             }
         }
     ],
