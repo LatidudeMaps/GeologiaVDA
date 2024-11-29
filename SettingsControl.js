@@ -144,7 +144,7 @@ class SettingsControl {
             { instance: new maplibregl.TerrainControl({
                 source: 'terrainSource',
                 exaggeration: 1.5
-            }), className: 'maplibregl-ctrl-terrain' }
+            }), className: 'maplibregl-ctrl-terrain' },
         ];
 
         controls.forEach(control => {
