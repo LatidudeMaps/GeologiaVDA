@@ -71,7 +71,7 @@ class CopyrightControl {
         const links = [
             { icon: 'book', text: 'Read the Paper', url: 'https://doi.org/10.1080/17445647.2023.2257729' },
             { icon: 'link', text: 'My Links & Social Media', url: 'https://linktr.ee/latidudemaps' },
-            { icon: 'globe', text: 'My Personal Website', url: 'https://latidudemaps.github.io/' },
+            { icon: 'globe', text: 'My Personal Website', url: 'https://micheletricarico.com' },
             { icon: 'github', text: 'View on GitHub', url: 'https://github.com/LatidudeMaps' }
         ];
 
